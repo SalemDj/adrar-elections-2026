@@ -44,44 +44,71 @@
     }
 
     /* ========================================================= */
-    /* تنسيقات الطباعة الاحترافية - صفحة واحدة A4 (Landscape) */
+    /* تنسيقات استخراج PDF الاحترافية - حماية من الصفحة البيضاء */
     /* ========================================================= */
     @media print {
       @page {
         size: A4 landscape;
-        margin: 0.5cm;
+        margin: 0; /* إلغاء هوامش المتصفح الافتراضية للتحكم الكامل */
       }
+      
       html, body {
-        width: 100%;
-        height: 100%;
+        width: 100vw;
+        height: 100vh;
         margin: 0;
         padding: 0;
         background-color: #ffffff !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        overflow: hidden !important; /* منع أي صفحات إضافية */
       }
-      /* إخفاء كل العناصر ما عدا البطاقة */
-      body > *:not(#public-view) { display: none !important; }
-      #public-view > *:not(#search-results-area) { display: none !important; }
-      #search-results-area > *:not(#state-single-match) { display: none !important; }
-      #state-single-match > *:not(#printable-assignment-card) { display: none !important; }
-      
-      /* ضبط البطاقة لتملأ صفحة واحدة وتمنع الانقسام */
-      #printable-assignment-card {
-        position: relative !important;
+
+      /* 1. إخفاء جميع العناصر الجانبية بالقوة المطلقة */
+      header, footer, #toast-container, form, .bg-gradient-to-l, 
+      #state-ready, #state-loading, #state-incomplete, #state-not-found, 
+      #state-error, #state-multiple, .no-print {
+        display: none !important;
+      }
+
+      /* 2. تحرير البطاقة من جميع الحاويات (Flexbox/Grid) التي تسبب اختفاءها */
+      main, #public-view, #public-view > div, #search-results-area, #state-single-match {
+        display: block !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
         width: 100% !important;
+        max-width: none !important;
         height: auto !important;
-        max-height: 95vh !important;
-        margin: 0 auto !important;
-        padding: 1.5cm !important;
-        border: 2px solid #1e3a8a !important;
+        overflow: visible !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      /* 3. إخفاء الشريط العلوي الذي يحتوي على الأزرار (أيقونة الصح والزر) */
+      #state-single-match > div:first-child {
+        display: none !important;
+      }
+
+      /* 4. تصميم البطاقة الداخلي ليأخذ مقاس ورقة A4 بالعرض ويتوسط الشاشة */
+      #printable-assignment-card {
+        width: 100% !important;
+        height: 100vh !important; /* تغطية الشاشة بالكامل */
+        margin: 0 !important;
+        padding: 1.5cm 2cm !important; /* هوامش داخلية أنيقة */
+        border: 2px solid #1e3a8a !important; /* إطار أزرق رسمي */
         border-radius: 16px !important;
         box-shadow: none !important;
         page-break-inside: avoid !important;
-        page-break-after: auto !important;
-        page-break-before: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important; /* توزيع متناسق للمسافات */
       }
-      .no-print { display: none !important; }
+
+      /* تكبير النصوص قليلاً لتتناسب مع حجم الورقة عند الطباعة */
+      #printable-assignment-card h2 { font-size: 2.75rem !important; }
+      #card-office-number { font-size: 4rem !important; }
+      #card-center { font-size: 2.25rem !important; }
     }
 
     /* شريط تمرير أنيق للجداول */
@@ -325,7 +352,6 @@
 
         <!-- بطاقة التعيين الرسمية القابلة للطباعة -->
         <div id="state-single-match" class="hidden space-y-5">
-          
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-emerald-50 border border-emerald-200 px-5 py-4 rounded-2xl no-print">
             <div class="flex items-center gap-2.5 text-emerald-900 w-full sm:w-auto">
               <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600 shrink-0"></i>
@@ -333,12 +359,13 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <button
-                onclick="printCardOnly()"
-                class="flex-1 sm:flex-initial px-5 py-2.5 bg-blue-900 hover:bg-blue-950 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>طباعة البطاقة</span>
+              <button onclick="saveAsNativePDF()" class="flex-1 sm:flex-initial px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer">
+                <i data-lucide="file-text" class="w-5 h-5"></i><span>حفظ البطاقة كـ PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="printable-assignment-card" class="bg-white rounded-2xl border-2 border-blue-900/20 shadow-lg overflow-hidden flex flex-col">
               </button>
               
               <button
@@ -698,23 +725,12 @@
       document.getElementById('state-single-match').classList.remove('hidden');
     }
 
-    // =========================================================================
-    // دوال الطباعة واستخراج الـ PDF (اعتماداً على محرك المتصفح للحفاظ على اللغة العربية)
-    // =========================================================================
-    function printCardOnly() {
-      const name = currentAssignmentData ? (currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' + (currentAssignmentData.prenom_ar || currentAssignmentData.prenom) : 'مؤطر';
-      const originalTitle = document.title;
-      document.title = `طباعة_تعيين_${name}`;
-      window.print();
-      setTimeout(() => { document.title = originalTitle; }, 1000);
-    }
-
     function saveAsNativePDF() {
       showToast('للحفاظ على دقة اللغة العربية، يرجى اختيار "Save as PDF / حفظ بتنسيق PDF" من نافذة الطباعة التي ستظهر الآن.', 'info');
       setTimeout(() => {
         const name = currentAssignmentData ? (currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' + (currentAssignmentData.prenom_ar || currentAssignmentData.prenom) : 'مؤطر';
         const originalTitle = document.title;
-        document.title = `بطاقة_تعيين_${name}`;
+        document.title = `تعيين_${name.replace(/\s+/g, '_')}`;
         window.print();
         setTimeout(() => { document.title = originalTitle; }, 1500);
       }, 2000);
