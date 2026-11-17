@@ -1,0 +1,22 @@
+[build]
+  # بما أن التطبيق عبارة عن ملف HTML و JS مباشر، لا نحتاج إلى أمر بناء معقد
+  # مجلد النشر هو المجلد الجذري نفسه
+  publish = "."
+
+[[redirects]]
+  # توجيه جميع الطلبات غير الموجودة إلى ملف index.html (مفيد لتطبيقات الصفحة الواحدة SPA)
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  # تطبيق سياسات أمان صارمة على جميع صفحات الموقع
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # السماح فقط بالاتصال بخوادم Supabase والخطوط المعتمدة
+    Content-Security-Policy = "default-src 'self' https://kznnwyhoyyqgkmopnwpn.supabase.co https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://kznnwyhoyyqgkmopnwpn.supabase.co wss://kznnwyhoyyqgkmopnwpn.supabase.co;"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
