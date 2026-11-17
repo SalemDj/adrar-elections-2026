@@ -57,29 +57,28 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 15mm;
+        margin: 0;
       }
-      body * {
-        visibility: hidden !important;
+      body {
+        background-color: white !important;
       }
-      #printable-assignment-card,
-      #printable-assignment-card * {
-        visibility: visible !important;
+      header, footer, #public-search-form, #toast-container, .no-print {
+        display: none !important;
+      }
+      #search-results-area {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      #state-single-match {
+        margin: 0 !important;
+        padding: 0 !important;
       }
       #printable-assignment-card {
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 20px !important;
+        border: none !important;
         box-shadow: none !important;
-        border: 2px solid #1e3a8a !important;
-        background: #ffffff !important;
-      }
-      .no-print {
-        display: none !important;
+        margin: 0 !important;
+        padding: 2cm !important;
+        width: 100% !important;
       }
     }
 
@@ -1211,7 +1210,16 @@
     function downloadAssignmentPDF() {
       const el = document.getElementById('printable-assignment-card');
       const name = currentAssignmentData ? `${currentAssignmentData.nom}_${currentAssignmentData.prenom}` : 'card';
-      html2pdf().set({ margin: 10, filename: `تعيين_${name}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { format: 'a4', orientation: 'portrait' } }).from(el).save();
+      
+      const opt = {
+        margin:       10,
+        filename:     `تعيين_${name}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().set(opt).from(el).save();
     }
 
     // إدارة لوحة المشرف
@@ -1245,9 +1253,48 @@
 
     function computeAndRenderStatistics() {
       document.getElementById('stat-total-staff').textContent = allStaffCache.length;
-      document.getElementById('stat-total-centers').textContent = new Set(allStaffCache.map(s=>s.center)).size;
+      document.getElementById('stat-total-centers').textContent = new Set(allStaffCache.map(s=>s.center).filter(Boolean)).size;
+      document.getElementById('stat-total-wilayas').textContent = new Set(allStaffCache.map(s=>s.wilaya).filter(Boolean)).size;
+      document.getElementById('stat-total-municipalities').textContent = new Set(allStaffCache.map(s=>s.election_municipality || s.municipality).filter(Boolean)).size;
+      document.getElementById('stat-total-offices').textContent = new Set(allStaffCache.map(s=>s.office_number).filter(Boolean)).size;
+      document.getElementById('stat-total-tasks').textContent = new Set(allStaffCache.map(s=>s.task).filter(Boolean)).size;
       document.getElementById('stat-complete-records').textContent = allStaffCache.filter(s=>!s.needs_review).length;
       document.getElementById('stat-review-records').textContent = allStaffCache.filter(s=>s.needs_review).length;
+
+      renderTaskChart();
+      renderCenterChart();
+    }
+
+    function renderTaskChart() {
+      const counts = {};
+      allStaffCache.forEach(s => { if(s.task) counts[s.task] = (counts[s.task] || 0) + 1; });
+      const max = Math.max(...Object.values(counts), 1);
+      const html = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([task, count]) => {
+        const pct = (count / max) * 100;
+        return `
+          <div>
+            <div class="flex justify-between text-xs font-bold text-slate-700 mb-1"><span>${escapeHTML(task)}</span><span>${count}</span></div>
+            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${pct}%"></div></div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('chart-tasks').innerHTML = html || '<p class="text-xs text-slate-500 text-center py-4">لا توجد بيانات</p>';
+    }
+
+    function renderCenterChart() {
+      const counts = {};
+      allStaffCache.forEach(s => { if(s.center) counts[s.center] = (counts[s.center] || 0) + 1; });
+      const max = Math.max(...Object.values(counts), 1);
+      const html = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([center, count]) => {
+        const pct = (count / max) * 100;
+        return `
+          <div>
+            <div class="flex justify-between text-xs font-bold text-slate-700 mb-1"><span>${escapeHTML(center)}</span><span>${count}</span></div>
+            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-indigo-600 h-2 rounded-full" style="width: ${pct}%"></div></div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('chart-centers').innerHTML = html || '<p class="text-xs text-slate-500 text-center py-4">لا توجد بيانات</p>';
     }
 
     function populateFilterDropdowns() {
