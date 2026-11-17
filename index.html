@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>الدليل الإلكتروني لمؤطري مراكز ومكاتب التصويت - بلدية أدرار – الانتخابات المحلية نوفمبر 2026</title>
   
-  <!-- خطوط Google Fonts -->
+  <!-- خطوط Google Fonts: Cairo & Tajawal -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,83 +16,146 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Cairo', 'sans-serif'] },
+          fontFamily: {
+            sans: ['Cairo', 'Tajawal', 'sans-serif'],
+          },
           colors: {
-            primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#2563eb', 600: '#1d4ed8', 700: '#1e40af', 900: '#0f172a' }
+            primary: {
+              50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+              400: '#60a5fa', 500: '#2563eb', 600: '#1d4ed8', 700: '#1e40af',
+              800: '#1e3a8a', 900: '#0f172a',
+            }
           }
         }
       }
     }
   </script>
 
-  <!-- مكتبات المعالجة -->
+  <!-- مكتبات المعالجة: Supabase, Lucide Icons, Mammoth (Word .docx) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
   <style>
-    body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; color: #0f172a; }
-
-    /* تنسيقات مخصصة للطباعة وتصدير PDF النظيف 100% عربي */
-    @media print {
-      @page { size: A4 landscape; margin: 1cm; }
-      body * { visibility: hidden; }
-      #printable-assignment-card, #printable-assignment-card * { visibility: visible; }
-      #printable-assignment-card {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 2cm;
-        box-shadow: none !important;
-        border: 2px solid #1e3a8a !important;
-        border-radius: 16px !important;
-      }
-      header, footer, .no-print { display: none !important; }
+    body {
+      font-family: 'Cairo', 'Tajawal', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
     }
 
+    /* ========================================================= */
+    /* تنسيقات الطباعة الاحترافية - صفحة واحدة A4 (Landscape) */
+    /* ========================================================= */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0.5cm;
+      }
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      /* إخفاء كل العناصر ما عدا البطاقة */
+      body > *:not(#public-view) { display: none !important; }
+      #public-view > *:not(#search-results-area) { display: none !important; }
+      #search-results-area > *:not(#state-single-match) { display: none !important; }
+      #state-single-match > *:not(#printable-assignment-card) { display: none !important; }
+      
+      /* ضبط البطاقة لتملأ صفحة واحدة وتمنع الانقسام */
+      #printable-assignment-card {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 95vh !important; /* منع التجاوز للصفحة الثانية */
+        margin: 0 auto !important;
+        padding: 1.5cm !important;
+        border: 2px solid #1e3a8a !important;
+        border-radius: 16px !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+        page-break-before: auto !important;
+      }
+      .no-print { display: none !important; }
+    }
+
+    /* شريط تمرير أنيق للجداول */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col bg-slate-50 antialiased selection:bg-blue-600 selection:text-white">
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- الإشعارات -->
+  <!-- إشعارات النظام العائمة (Toast Notifications) -->
   <div id="toast-container" class="fixed top-4 left-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none no-print"></div>
 
-  <!-- الشريط العلوي -->
+  <!-- الشريط العلوي للتطبيق (Header) -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- الهوية البصرية والتطبيق -->
       <div class="flex items-center gap-3.5 cursor-pointer" onclick="switchView('public')">
         <img src="image.jpeg" alt="شعار السلطة الوطنية المستقلة للانتخابات" class="w-16 h-16 object-contain shrink-0 drop-shadow-md rounded-full" onerror="this.style.display='none'" />
         <div>
-          <h1 class="text-base sm:text-xl font-extrabold text-blue-950 leading-tight">الدليل الإلكتروني لمؤطري مراكز ومكاتب التصويت - بلدية أدرار</h1>
+          <h1 class="text-base sm:text-xl font-extrabold text-blue-950 leading-tight">
+            الدليل الإلكتروني لمؤطري مراكز ومكاتب التصويت - بلدية أدرار
+          </h1>
           <p class="text-xs sm:text-sm font-semibold text-blue-700 flex items-center gap-1.5 mt-0.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> الانتخابات المحلية – 28 نوفمبر 2026
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+            الانتخابات المحلية – 28 نوفمبر 2026
           </p>
         </div>
       </div>
+
+      <!-- أزرار التنقل بين الواجهة العامة ولوحة الإدارة -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <button id="nav-public-btn" onclick="switchView('public')" class="hidden px-3.5 py-2 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i><span>واجهة الاستعلام</span></button>
-        <button id="nav-admin-btn" onclick="switchView('admin')" class="px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-blue-50 text-blue-950 border border-slate-200 transition flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-blue-700"></i><span id="nav-admin-label">فضاء الإدارة</span></button>
-        <button id="nav-logout-btn" onclick="handleLogout()" class="hidden px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-red-50 text-red-700 border border-red-200 transition flex items-center gap-2"><i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">تسجيل الخروج</span></button>
+        <button id="nav-public-btn" onclick="switchView('public')" class="hidden px-3.5 py-2 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition flex items-center gap-2">
+          <i data-lucide="search" class="w-4 h-4"></i>
+          <span>واجهة الاستعلام</span>
+        </button>
+
+        <button id="nav-admin-btn" onclick="switchView('admin')" class="px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-blue-50 text-blue-950 border border-slate-200 hover:border-blue-200 transition flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-blue-700"></i>
+          <span id="nav-admin-label">فضاء الإدارة</span>
+        </button>
+
+        <button id="nav-logout-btn" onclick="handleLogout()" class="hidden px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 transition flex items-center gap-2">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">تسجيل الخروج</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- 1. الواجهة العامة -->
+  <!-- ===================================================================== -->
+  <!-- 1. الواجهة العامة للاستعلام والبحث (Public Search View) -->
+  <!-- ===================================================================== -->
   <main id="public-view" class="flex-1 flex flex-col justify-between">
     <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      
+      <!-- بطاقة البحث الرئيسية -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 overflow-hidden no-print">
         <div class="bg-gradient-to-l from-blue-950 via-blue-900 to-blue-800 px-6 py-7 sm:px-8 text-white">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-100 text-xs font-semibold mb-3"><i data-lucide="info" class="w-3.5 h-3.5"></i><span>بوابة الاستعلام الرسمية عن مراكز ومكاتب التصويت</span></div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">اعرف مركز ومكتب تعيينك</h2>
-          <p class="text-blue-100 text-sm mt-2">أدخل اسمك ولقبك باللغة اللاتينية أو العربية كما وردا في قائمة المؤطرين للاطلاع على معلومات تعيينك.</p>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-100 text-xs font-semibold mb-3">
+            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+            <span>بوابة الاستعلام الرسمية عن مراكز ومكاتب التصويت</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            اعرف مركز ومكتب تعيينك
+          </h2>
+          <p class="text-blue-100 text-sm sm:text-base mt-2 leading-relaxed">
+            أدخل اسمك ولقبك باللغة اللاتينية أو العربية كما وردا في قائمة المؤطرين للاطلاع على معلومات تعيينك.
+          </p>
         </div>
 
         <form id="public-search-form" onsubmit="handlePublicSearch(event)" class="p-6 sm:p-8 space-y-6">
+          <!-- أزرار تبديل لغة البحث -->
           <div class="flex justify-center mb-2">
             <div class="bg-slate-100 p-1.5 rounded-xl inline-flex gap-1">
               <button type="button" onclick="setSearchLang('fr')" id="btn-lang-fr" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-white text-blue-700 shadow-sm transition">بالحروف اللاتينية (FR)</button>
@@ -101,172 +164,396 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <!-- الحقل الأول: اللقب -->
             <div>
-              <label id="label-search-nom" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between"><span>اللقب (Nom) *</span><span class="text-xs text-slate-400">بالحروف اللاتينية</span></label>
+              <label id="label-search-nom" for="search-nom" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
+                <span>اللقب (Nom) <span class="text-red-500">*</span></span>
+                <span class="text-xs font-medium text-slate-400">بالحروف اللاتينية</span>
+              </label>
               <div class="relative">
-                <input type="text" id="search-nom" dir="ltr" autocomplete="off" placeholder="مثال: TOUAHRIA" class="w-full px-4 py-3.5 font-semibold text-lg uppercase bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-blue-600 outline-none placeholder:font-normal placeholder:normal-case" />
+                <input
+                  type="text"
+                  id="search-nom"
+                  dir="ltr"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="مثال: TOUAHRIA"
+                  class="w-full px-4 py-3.5 text-left font-semibold text-base sm:text-lg uppercase tracking-wide bg-slate-50 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition placeholder:text-slate-400 placeholder:font-normal placeholder:normal-case"
+                />
+                <div class="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400">
+                  <i data-lucide="user" class="w-5 h-5"></i>
+                </div>
               </div>
             </div>
+
+            <!-- الحقل الثاني: الاسم -->
             <div>
-              <label id="label-search-prenom" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between"><span>الاسم (Prénom) *</span><span class="text-xs text-slate-400">بالحروف اللاتينية</span></label>
+              <label id="label-search-prenom" for="search-prenom" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
+                <span>الاسم (Prénom) <span class="text-red-500">*</span></span>
+                <span class="text-xs font-medium text-slate-400">بالحروف اللاتينية</span>
+              </label>
               <div class="relative">
-                <input type="text" id="search-prenom" dir="ltr" autocomplete="off" placeholder="مثال: Imad Eddine" class="w-full px-4 py-3.5 font-semibold text-lg bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-blue-600 outline-none placeholder:font-normal" />
+                <input
+                  type="text"
+                  id="search-prenom"
+                  dir="ltr"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="مثال: Imad Eddine"
+                  class="w-full px-4 py-3.5 text-left font-semibold text-base sm:text-lg tracking-wide bg-slate-50 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition placeholder:text-slate-400 placeholder:font-normal"
+                />
+                <div class="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400">
+                  <i data-lucide="user-check" class="w-5 h-5"></i>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="flex gap-3 pt-1">
-            <button type="submit" id="btn-search-submit" class="flex-1 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-xl shadow-md transition flex items-center justify-center gap-2"><i data-lucide="search" class="w-5 h-5"></i><span>البحث عن التعيين</span></button>
-            <button type="button" onclick="resetPublicSearch()" class="py-3.5 px-5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+          <!-- تحدي الحماية CAPTCHA يظهر فقط عند تكرار المحاولات (Rate Limiting) -->
+          <div id="captcha-box" class="hidden p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 text-amber-900">
+                <i data-lucide="shield-alert" class="w-5 h-5 text-amber-600 shrink-0"></i>
+                <span class="text-sm font-bold">تحقق أمني: يرجى حل العملية الحسابية للمتابعة: <span id="captcha-question" dir="ltr" class="px-2 py-0.5 bg-white rounded border border-amber-300 font-mono text-base"></span></span>
+              </div>
+              <input
+                type="number"
+                id="captcha-answer"
+                placeholder="النتيجة"
+                class="w-full sm:w-32 px-3 py-2 text-center font-bold bg-white border border-amber-300 rounded-lg focus:border-amber-600 outline-none"
+              />
+            </div>
+          </div>
+
+          <!-- أزرار البحث والمسح -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+            <button
+              type="submit"
+              id="btn-search-submit"
+              class="flex-1 py-3.5 px-6 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-blue-400 text-white font-bold text-base sm:text-lg rounded-xl shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer"
+            >
+              <i data-lucide="search" class="w-5 h-5"></i>
+              <span>البحث عن التعيين</span>
+            </button>
+            <button
+              type="button"
+              onclick="resetPublicSearch()"
+              class="py-3.5 px-5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              <span>مسح الحقول</span>
+            </button>
           </div>
         </form>
       </div>
 
-      <!-- حالات البحث والنتائج -->
+      <!-- =================================================================== -->
+      <!-- منطقة عرض حالات البحث والنتائج (Search States & Results) -->
+      <!-- =================================================================== -->
       <div id="search-results-area" class="mt-8">
+        
         <div id="state-ready" class="text-center py-8 px-4 bg-white/60 rounded-2xl border border-dashed border-slate-300 no-print">
-          <div class="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3"><i data-lucide="file-search" class="w-7 h-7"></i></div>
+          <div class="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="file-search" class="w-7 h-7"></i>
+          </div>
           <h3 class="text-base font-bold text-slate-800">في انتظار إدخال بيانات الاستعلام</h3>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+            تأكد من كتابة اللقب (Nom) والاسم (Prénom) كما هما مدونان في القوائم الرسمية، ثم اضغط على "البحث عن التعيين".
+          </p>
         </div>
 
-        <div id="state-loading" class="hidden text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 no-print">
+        <div id="state-loading" class="hidden text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 shadow-sm no-print">
           <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
           <h3 class="text-base font-bold text-blue-950">جاري البحث في قاعدة البيانات المعتمدة...</h3>
         </div>
 
-        <div id="state-not-found" class="hidden p-6 bg-white border border-slate-200 rounded-2xl text-center no-print">
-          <div class="w-14 h-14 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto mb-3"><i data-lucide="search-x" class="w-7 h-7"></i></div>
-          <h3 class="text-lg font-extrabold text-slate-900">لم يتم العثور على بيانات مطابقة</h3>
-          <p id="not-found-message" class="text-sm text-slate-600 mt-2">تأكد من كتابة الاسم واللقب بدقة.</p>
+        <div id="state-incomplete" class="hidden p-5 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3.5 no-print">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-amber-950">بيانات البحث غير مكتملة</h3>
+            <p class="text-sm text-amber-800 mt-1">يرجى إدخال كل من <strong>اللقب</strong> و<strong>الاسم</strong> معاً لإجراء عملية المطابقة.</p>
+          </div>
         </div>
 
+        <div id="state-not-found" class="hidden p-6 bg-white border border-slate-200 rounded-2xl shadow-sm text-center no-print">
+          <div class="w-14 h-14 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="search-x" class="w-7 h-7"></i>
+          </div>
+          <h3 class="text-lg font-extrabold text-slate-900">لم يتم العثور على بيانات مطابقة</h3>
+          <p id="not-found-message" class="text-sm text-slate-600 mt-2 max-w-lg mx-auto leading-relaxed">
+            لم يتم العثور على بيانات مطابقة. يرجى التأكد من كتابة الاسم واللقب كما وردا في القائمة.
+          </p>
+        </div>
+
+        <div id="state-error" class="hidden p-6 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-4 no-print">
+          <div class="w-11 h-11 rounded-xl bg-red-100 text-red-700 flex items-center justify-center shrink-0">
+            <i data-lucide="wifi-off" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-red-950">تعذر الاتصال بقاعدة البيانات</h3>
+            <p id="error-message-text" class="text-sm text-red-800 mt-1">
+              حدث خطأ تقني أثناء الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.
+            </p>
+          </div>
+        </div>
+
+        <!-- حالة وجود أسماء متطابقة -->
         <div id="state-multiple" class="hidden bg-white border border-blue-200 rounded-2xl shadow-sm overflow-hidden no-print">
           <div class="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0"><i data-lucide="users" class="w-5 h-5"></i></div>
+            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
             <div>
-              <h3 class="font-extrabold text-blue-950">يوجد أكثر من سجل مطابق</h3>
-              <p class="text-xs text-blue-800">الرجاء اختيار السجل الخاص بك:</p>
+              <h3 class="text-base sm:text-lg font-extrabold text-blue-950">يوجد أكثر من سجل مطابق لهذا الاسم واللقب</h3>
+              <p class="text-xs sm:text-sm text-blue-800">حمايةً لخصوصية البيانات، يرجى اختيار السجل الخاص بك بناءً على المركز والمهمة:</p>
             </div>
           </div>
           <div id="multiple-matches-list" class="divide-y divide-slate-100 p-4 space-y-2"></div>
         </div>
 
-        <!-- بطاقة التعيين -->
+        <!-- 7. حالة العثور على نتيجة: بطاقة التعيين (Assignment Card) -->
         <div id="state-single-match" class="hidden space-y-5">
-          <div class="flex items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 px-5 py-3.5 rounded-2xl no-print">
-            <div class="flex items-center gap-2.5 text-emerald-900 font-bold"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>تم العثور على التعيين</div>
-            <div class="flex gap-2">
-              <!-- تحديث الأزرار لتعتمد على الطباعة المدمجة في المتصفح لضمان سلامة اللغة العربية 100% -->
-              <button onclick="downloadAssignmentPDF()" class="px-4 py-2.5 bg-blue-900 text-white text-sm font-bold rounded-xl flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i>طباعة أو حفظ كـ PDF</button>
+          
+          <!-- أزرار الطباعة مفصولة لحل المشاكل الفنية -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-emerald-50 border border-emerald-200 px-5 py-4 rounded-2xl no-print">
+            <div class="flex items-center gap-2.5 text-emerald-900 w-full sm:w-auto">
+              <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600 shrink-0"></i>
+              <span class="text-sm font-bold">تم العثور على التعيين بنجاح</span>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <button
+                onclick="printCardOnly()"
+                class="flex-1 sm:flex-initial px-5 py-2.5 bg-blue-900 hover:bg-blue-950 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>طباعة البطاقة</span>
+              </button>
+              
+              <button
+                onclick="saveAsNativePDF()"
+                class="flex-1 sm:flex-initial px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                <span>حفظ PDF</span>
+              </button>
             </div>
           </div>
 
-          <div id="printable-assignment-card" class="bg-white rounded-2xl border-2 border-slate-200 shadow-lg overflow-hidden">
-            <div class="bg-slate-50 px-8 py-6 border-b border-slate-200">
-              <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-blue-900 text-white text-sm font-bold mb-4"><i data-lucide="id-card" class="w-4 h-4"></i>بطاقة معلومات التعيين</span>
-              <div id="card-arabic-name-block">
-                <p class="text-xs font-bold text-slate-500 mb-1">اللقب والاسم:</p>
-                <h2 id="card-full-name-ar" class="text-3xl font-black text-blue-950"></h2>
-              </div>
-              <div id="card-missing-ar-warning" class="hidden mt-3 text-amber-600 text-sm font-bold">الاسم بالعربية غير متوفر.</div>
-              
-              <div class="grid grid-cols-2 gap-4 mt-5 pt-4 border-t border-slate-200">
-                <div id="card-birth-date-box">
-                  <span class="block text-xs text-slate-500 font-semibold">تاريخ الميلاد</span>
-                  <span id="card-birth-date" class="font-bold text-slate-900" dir="ltr"></span>
+          <!-- بطاقة التعيين الرسمية القابلة للطباعة (تأخذ صفحة A4 واحدة كاملة في الطباعة) -->
+          <div id="printable-assignment-card" class="bg-white rounded-2xl border-2 border-blue-900/20 shadow-lg overflow-hidden flex flex-col justify-between" style="min-height: 21cm;">
+            
+            <div>
+              <!-- القسم الأول: الهوية -->
+              <div class="bg-gradient-to-l from-slate-50 to-blue-50/60 px-6 py-6 sm:px-8 border-b border-slate-200">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-blue-900 text-white text-sm font-bold">
+                    <i data-lucide="id-card" class="w-4 h-4"></i>
+                    <span>بطاقة معلومات التعيين</span>
+                  </span>
                 </div>
-                <div id="card-birth-place-box">
-                  <span class="block text-xs text-slate-500 font-semibold">مكان الميلاد</span>
-                  <span id="card-birth-place" class="font-bold text-slate-900"></span>
+
+                <div id="card-arabic-name-block" class="mt-2">
+                  <p class="text-sm font-bold text-slate-500 mb-1">اللقب والاسم:</p>
+                  <h2 id="card-full-name-ar" class="text-4xl sm:text-5xl font-black text-blue-950 tracking-tight leading-tight py-2"></h2>
+                </div>
+
+                <div id="card-missing-ar-warning" class="hidden mt-3 p-3.5 bg-amber-50 border border-amber-300 rounded-xl flex items-center gap-2.5 text-amber-900">
+                  <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600 shrink-0"></i>
+                  <span class="text-sm font-bold">الاسم باللغة العربية غير متوفر في القاعدة.</span>
+                </div>
+
+                <div id="card-birth-info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-200/80">
+                  <div id="card-birth-date-box" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-blue-800 shrink-0">
+                      <i data-lucide="calendar" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                      <span class="block text-xs text-slate-500 font-semibold">تاريخ الميلاد</span>
+                      <span id="card-birth-date" class="text-base sm:text-lg font-bold text-slate-900" dir="ltr"></span>
+                    </div>
+                  </div>
+
+                  <div id="card-birth-place-box" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-blue-800 shrink-0">
+                      <i data-lucide="map-pin" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                      <span class="block text-xs text-slate-500 font-semibold">مكان الميلاد</span>
+                      <span id="card-birth-place" class="text-base sm:text-lg font-bold text-slate-900"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- القسم الثاني: معلومات التعيين -->
+              <div class="p-6 sm:p-8 space-y-6 bg-white">
+                <div class="flex items-center gap-2 text-blue-900 font-extrabold text-lg border-b border-slate-100 pb-3">
+                  <i data-lucide="building-2" class="w-6 h-6 text-blue-600"></i>
+                  <span>بيانات المركز ومكتب التعيين</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <!-- المركز -->
+                  <div class="md:col-span-2 bg-blue-50/80 border-2 border-blue-200 rounded-2xl p-6 flex flex-col justify-center">
+                    <span class="text-sm font-bold text-blue-700 uppercase tracking-wider mb-2">المركز الانتخابي المعين به</span>
+                    <p id="card-center" class="text-2xl sm:text-3xl font-black text-blue-950 leading-snug"></p>
+                  </div>
+                  <!-- المكتب -->
+                  <div class="bg-gradient-to-br from-blue-900 to-blue-800 text-white rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-md">
+                    <span class="text-sm font-bold text-blue-200 mb-2">رقم المكتب</span>
+                    <p id="card-office-number" class="text-5xl font-black tracking-wider"></p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
+                  <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span class="block text-sm font-bold text-slate-500 mb-1.5">الولاية</span>
+                    <p id="card-wilaya" class="text-xl font-extrabold text-slate-900"></p>
+                  </div>
+                  <div id="card-municipality-box" class="p-5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span class="block text-sm font-bold text-slate-500 mb-1.5">بلدية الانتخاب</span>
+                    <p id="card-election-municipality" class="text-xl font-extrabold text-slate-900"></p>
+                  </div>
+                  <div class="p-5 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                    <span class="block text-sm font-bold text-emerald-700 mb-1.5">المهمة المسندة</span>
+                    <p id="card-task" class="text-xl font-extrabold text-emerald-950"></p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div class="p-8 space-y-6 bg-white">
-              <div class="flex items-center gap-2 text-blue-900 font-extrabold text-base border-b border-slate-100 pb-2"><i data-lucide="building-2" class="w-5 h-5"></i>بيانات المركز ومكتب التعيين</div>
-              <div class="grid grid-cols-3 gap-4">
-                <div class="col-span-2 bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
-                  <span class="text-xs font-bold text-blue-700 uppercase mb-1">المركز الانتخابي المعين به</span>
-                  <p id="card-center" class="text-2xl font-black text-blue-950"></p>
-                </div>
-                <div class="bg-blue-900 text-white rounded-2xl p-5 flex flex-col items-center justify-center text-center">
-                  <span class="text-xs font-bold text-blue-200 mb-1">رقم المكتب</span>
-                  <p id="card-office-number" class="text-4xl font-black"></p>
-                </div>
+            <!-- التذييل الرسمي يظهر في أسفل الصفحة عند الطباعة -->
+            <div class="bg-slate-100 px-6 py-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-600 mt-auto">
+              <div class="font-bold text-slate-800">
+                الدليل الإلكتروني لمؤطري مراكز ومكاتب التصويت - بلدية أدرار • الانتخابات المحلية – نوفمبر 2026
               </div>
-              <div class="grid grid-cols-3 gap-4">
-                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200"><span class="block text-xs font-bold text-slate-500">الولاية</span><p id="card-wilaya" class="font-extrabold text-slate-900"></p></div>
-                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200"><span class="block text-xs font-bold text-slate-500">بلدية الانتخاب</span><p id="card-election-municipality" class="font-extrabold text-slate-900"></p></div>
-                <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200"><span class="block text-xs font-bold text-emerald-700">المهمة المسندة</span><p id="card-task" class="font-extrabold text-emerald-950"></p></div>
-              </div>
+              <div id="card-print-timestamp" class="font-medium text-slate-500" dir="ltr"></div>
             </div>
-            <div class="bg-slate-100 px-8 py-4 border-t border-slate-200 text-xs text-slate-600 font-bold flex justify-between">
-              <span>الدليل الإلكتروني لمؤطري مراكز ومكاتب التصويت - بلدية أدرار</span>
-              <span id="card-print-timestamp"></span>
-            </div>
+
           </div>
         </div>
+
       </div>
     </div>
+
+    <!-- تذييل الصفحة العامة -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 no-print">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-xs sm:text-sm text-slate-500">
+        <p class="font-bold text-slate-700">الدليل الإلكتروني لمؤطري مراكز ومكاتب التصويت - بلدية أدرار – الانتخابات المحلية نوفمبر 2026</p>
+      </div>
+    </footer>
   </main>
 
-  <!-- 2. واجهة الإدارة وتسجيل الدخول (Login & Dashboard) -->
+  <!-- ===================================================================== -->
+  <!-- 2. واجهة تسجيل دخول المشرف (Admin Login View) -->
+  <!-- ===================================================================== -->
   <section id="admin-login-view" class="hidden flex-1 flex items-center justify-center px-4 py-12">
     <div class="max-w-md w-full bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
       <div class="bg-blue-950 px-6 py-7 text-center text-white">
-        <h2 class="text-xl font-extrabold">تسجيل الدخول للإدارة</h2>
+        <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="lock" class="w-7 h-7 text-blue-200"></i>
+        </div>
+        <h2 class="text-xl font-extrabold">تسجيل الدخول إلى لوحة الإدارة</h2>
       </div>
-      <form id="admin-login-form" onsubmit="handleAdminLogin(event)" class="p-8 space-y-5">
-        <div><label class="block text-sm font-bold mb-1">البريد الإلكتروني</label><input type="email" id="admin-email" dir="ltr" required class="w-full px-4 py-3 bg-slate-50 border rounded-xl" /></div>
-        <div><label class="block text-sm font-bold mb-1">كلمة المرور</label><input type="password" id="admin-password" dir="ltr" required class="w-full px-4 py-3 bg-slate-50 border rounded-xl" /></div>
-        <button type="submit" class="w-full py-3.5 bg-blue-700 text-white font-bold rounded-xl">دخول</button>
+      <form id="admin-login-form" onsubmit="handleAdminLogin(event)" class="p-6 sm:p-8 space-y-5">
+        <div id="login-error-alert" class="hidden p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-red-600"></i>
+          <span id="login-error-text"></span>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5">البريد الإلكتروني للمشرف</label>
+          <input type="email" id="admin-email" dir="ltr" required class="w-full px-4 py-3 text-left bg-slate-50 border border-slate-300 rounded-xl focus:border-blue-600 outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5">كلمة المرور</label>
+          <input type="password" id="admin-password" dir="ltr" required class="w-full px-4 py-3 text-left bg-slate-50 border border-slate-300 rounded-xl focus:border-blue-600 outline-none" />
+        </div>
+        <button type="submit" id="btn-login-submit" class="w-full py-3.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md transition">دخول إلى لوحة التحكم</button>
+        <div class="text-center pt-2">
+          <button type="button" onclick="switchView('public')" class="text-xs font-bold text-slate-500 hover:text-blue-700">العودة إلى صفحة البحث العامة</button>
+        </div>
       </form>
     </div>
   </section>
 
-  <!-- لوحة الإحصائيات والإدارة -->
-  <section id="admin-dashboard-view" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-    <div class="bg-white rounded-2xl p-5 border shadow-sm flex flex-wrap items-center justify-between gap-4">
-      <div><h2 class="text-lg font-extrabold text-blue-950">لوحة التحكم</h2></div>
-      <div class="flex gap-2">
-        <button onclick="switchAdminTab('stats')" id="tab-btn-stats" class="px-4 py-2 bg-blue-900 text-white text-sm font-bold rounded-xl">الإحصائيات</button>
-        <button onclick="switchAdminTab('import')" id="tab-btn-import" class="px-4 py-2 bg-slate-100 text-slate-700 text-sm font-bold rounded-xl hover:bg-slate-200">استيراد الملفات</button>
+  <!-- ===================================================================== -->
+  <!-- 3. لوحة تحكم المشرف المتكاملة (Admin Dashboard View) -->
+  <!-- ===================================================================== -->
+  <section id="admin-dashboard-view" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-blue-900 text-white flex items-center justify-center font-bold">
+          <i data-lucide="user-cog" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-extrabold text-blue-950">لوحة تحكم الإدارة والإحصائيات</h2>
+          <p class="text-xs text-slate-500">المشرف الحالي: <span id="current-admin-email" class="font-bold text-blue-700" dir="ltr"></span></p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="switchAdminTab('stats')" id="tab-btn-stats" class="admin-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-900 text-white transition flex items-center gap-2 cursor-pointer"><i data-lucide="bar-chart-3" class="w-4 h-4"></i>الإحصائيات العامة</button>
+        <button onclick="switchAdminTab('records')" id="tab-btn-records" class="admin-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center gap-2 cursor-pointer"><i data-lucide="database" class="w-4 h-4"></i>إدارة البيانات</button>
+        <button onclick="switchAdminTab('import')" id="tab-btn-import" class="admin-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center gap-2 cursor-pointer"><i data-lucide="file-up" class="w-4 h-4"></i>استيراد الملفات</button>
       </div>
     </div>
 
-    <!-- الإحصائيات (تم تصحيح الحسابات) -->
+    <!-- التبويب 1: الإحصائيات العامة -->
     <div id="admin-tab-stats" class="space-y-6">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-2xl border shadow-sm"><span class="text-xs font-bold text-slate-500">إجمالي المؤطرين</span><p id="stat-total-staff" class="text-3xl font-black text-blue-950">0</p></div>
-        <div class="bg-white p-5 rounded-2xl border shadow-sm"><span class="text-xs font-bold text-slate-500">الولايات</span><p id="stat-total-wilayas" class="text-3xl font-black text-slate-900">1</p></div>
-        <div class="bg-white p-5 rounded-2xl border shadow-sm"><span class="text-xs font-bold text-slate-500">البلديات</span><p id="stat-total-municipalities" class="text-3xl font-black text-slate-900">0</p></div>
-        <div class="bg-white p-5 rounded-2xl border shadow-sm"><span class="text-xs font-bold text-slate-500">المراكز</span><p id="stat-total-centers" class="text-3xl font-black text-slate-900">0</p></div>
-        <div class="bg-white p-5 rounded-2xl border shadow-sm"><span class="text-xs font-bold text-slate-500">المكاتب</span><p id="stat-total-offices" class="text-3xl font-black text-slate-900">0</p></div>
-        <div class="bg-white p-5 rounded-2xl border shadow-sm"><span class="text-xs font-bold text-slate-500">المهام</span><p id="stat-total-tasks" class="text-3xl font-black text-slate-900">0</p></div>
-        <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200"><span class="text-xs font-bold text-emerald-800">مكتملة</span><p id="stat-complete-records" class="text-3xl font-black text-emerald-700">0</p></div>
-        <div class="bg-amber-50 p-5 rounded-2xl border border-amber-200"><span class="text-xs font-bold text-amber-800">للمراجعة</span><p id="stat-review-records" class="text-3xl font-black text-amber-700">0</p></div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><span class="text-xs font-bold text-slate-500">إجمالي المشرفين والمؤطرين</span><p id="stat-total-staff" class="text-3xl font-black text-blue-950">0</p></div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><span class="text-xs font-bold text-slate-500">عدد الولايات</span><p id="stat-total-wilayas" class="text-3xl font-black text-slate-900">0</p></div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><span class="text-xs font-bold text-slate-500">عدد البلديات</span><p id="stat-total-municipalities" class="text-3xl font-black text-slate-900">0</p></div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><span class="text-xs font-bold text-slate-500">المراكز الانتخابية</span><p id="stat-total-centers" class="text-3xl font-black text-slate-900">0</p></div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><span class="text-xs font-bold text-slate-500">عدد المكاتب</span><p id="stat-total-offices" class="text-3xl font-black text-slate-900">0</p></div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><span class="text-xs font-bold text-slate-500">المهام المختلفة</span><p id="stat-total-tasks" class="text-3xl font-black text-slate-900">0</p></div>
+        <div class="bg-white p-5 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-sm"><span class="text-xs font-bold text-emerald-800">السجلات المكتملة</span><p id="stat-complete-records" class="text-3xl font-black text-emerald-700">0</p></div>
+        <div class="bg-white p-5 rounded-2xl border border-amber-200 bg-amber-50/30 shadow-sm"><span class="text-xs font-bold text-amber-800">تحتاج إلى مراجعة</span><p id="stat-review-records" class="text-3xl font-black text-amber-700">0</p></div>
       </div>
-      <div class="grid grid-cols-2 gap-6">
-        <div class="bg-white p-6 rounded-2xl border shadow-sm max-h-96 overflow-y-auto"><h3 class="font-extrabold mb-4">المهام</h3><div id="chart-tasks"></div></div>
-        <div class="bg-white p-6 rounded-2xl border shadow-sm max-h-96 overflow-y-auto"><h3 class="font-extrabold mb-4">المراكز</h3><div id="chart-centers"></div></div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-h-[400px] overflow-y-auto"><h3 class="font-extrabold text-blue-950 mb-4">توزيع المشرفين والمؤطرين حسب المهمة</h3><div id="chart-tasks" class="space-y-3 pl-2"></div></div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-h-[400px] overflow-y-auto"><h3 class="font-extrabold text-blue-950 mb-4">توزيع المؤطرين حسب المركز الانتخابي</h3><div id="chart-centers" class="space-y-3 pl-2"></div></div>
       </div>
     </div>
 
-    <!-- الاستيراد -->
-    <div id="admin-tab-import" class="hidden space-y-6">
-      <div class="bg-white p-8 rounded-2xl border shadow-sm">
-        <h3 class="text-lg font-extrabold text-blue-950 mb-4">استيراد الملفات (Word .docx)</h3>
-        <input type="file" multiple accept=".docx" onchange="handleFilesSelected(event)" class="block w-full text-sm border border-slate-300 rounded-lg cursor-pointer p-4" />
-        <div id="import-preview-section" class="hidden mt-6">
-          <div class="flex justify-between items-center bg-slate-100 p-4 rounded-t-xl font-bold"><span>معاينة البيانات المستخرجة</span><button onclick="commitImportedRecords()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg">اعتماد السجلات</button></div>
-          <div class="overflow-y-auto max-h-64 border"><table class="w-full text-sm text-right"><tbody id="import-preview-tbody" class="divide-y"></tbody></table></div>
+    <!-- التبويب 2: إدارة البيانات -->
+    <div id="admin-tab-records" class="hidden space-y-5">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div class="lg:col-span-2"><input type="text" id="admin-search-input" oninput="handleAdminFilterChange()" placeholder="بحث بالاسم أو اللقب (عربي أو لاتيني) أو رقم المكتب..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none" /></div>
+          <select id="filter-center" onchange="handleAdminFilterChange()" class="px-3 py-2.5 text-sm bg-slate-50 border rounded-xl outline-none"><option value="">جميع المراكز الانتخابية</option></select>
+          <select id="filter-status" onchange="handleAdminFilterChange()" class="px-3 py-2.5 text-sm bg-slate-50 border rounded-xl outline-none">
+            <option value="">جميع الحالات</option><option value="review">تحتاج مراجعة</option><option value="complete">مكتملة</option>
+          </select>
         </div>
+      </div>
+      <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-right border-collapse text-sm">
+            <thead class="bg-slate-50 border-b text-xs font-extrabold text-slate-600">
+              <tr><th class="p-3.5">اللقب والاسم (عربي)</th><th class="p-3.5">Nom & Prénom (لاتيني)</th><th class="p-3.5">المركز</th><th class="p-3.5 text-center">المكتب</th><th class="p-3.5">المهمة</th></tr>
+            </thead>
+            <tbody id="admin-records-tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- التبويب 3: الاستيراد -->
+    <div id="admin-tab-import" class="hidden bg-white p-8 rounded-2xl border shadow-sm">
+      <h3 class="text-lg font-extrabold text-blue-950 mb-4">استيراد الملفات الرسمية</h3>
+      <input type="file" multiple accept=".docx" onchange="handleFilesSelected(event)" class="block w-full border border-slate-300 rounded-lg p-4 cursor-pointer" />
+      <div id="import-preview-section" class="hidden mt-6">
+        <button onclick="commitImportedRecords()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold mb-4">اعتماد السجلات المستخرجة ورفعها</button>
+        <div class="overflow-y-auto max-h-64 border"><table class="w-full text-sm text-right"><tbody id="import-preview-tbody" class="divide-y"></tbody></table></div>
       </div>
     </div>
   </section>
 
   <!-- ===================================================================== -->
-  <!-- السكريبت (التصحيحات الجديدة: الطباعة والإحصائيات) -->
+  <!-- السكريبت (المنطق البرمجي) -->
   <!-- ===================================================================== -->
   <script>
     const SUPABASE_URL = 'https://kznnwyhoyyqgkmopnwpn.supabase.co';
@@ -278,34 +565,31 @@
     let searchLang = 'fr';
     let currentAssignmentData = null;
     let parsedImportBuffer = [];
+    let captchaRequired = false, captchaExpectedResult = 0, searchAttempts = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
-      await checkAuthSession();
-    });
-
-    function showToast(message, type = 'info') {
-      const c = document.getElementById('toast-container');
-      const t = document.createElement('div');
-      t.className = `px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white bg-slate-900 mb-2`;
-      t.textContent = message;
-      c.appendChild(t);
-      setTimeout(() => t.remove(), 3000);
-    }
-
-    async function checkAuthSession() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       currentUser = session?.user || null;
       if (currentUser) {
         document.getElementById('nav-admin-label').textContent = 'لوحة التحكم';
         document.getElementById('nav-logout-btn').classList.remove('hidden');
+        document.getElementById('current-admin-email').textContent = currentUser.email;
       }
+    });
+
+    function showToast(msg, type='info') {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = `px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white mb-2 ${type==='success'?'bg-emerald-600':'bg-blue-900'}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(), 3000);
     }
 
     function switchView(v) {
-      document.getElementById('public-view').classList.add('hidden');
-      document.getElementById('admin-login-view').classList.add('hidden');
-      document.getElementById('admin-dashboard-view').classList.add('hidden');
+      ['public-view','admin-login-view','admin-dashboard-view'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+      document.getElementById('nav-public-btn').classList.toggle('hidden', v==='public');
       
       if (v === 'public') document.getElementById('public-view').classList.remove('hidden');
       else if (v === 'admin') {
@@ -316,199 +600,244 @@
 
     async function handleAdminLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('admin-email').value;
-      const password = document.getElementById('admin-password').value;
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (!error) { currentUser = data.user; checkAuthSession(); switchView('admin'); }
-      else alert('خطأ في التسجيل');
+      const em = document.getElementById('admin-email').value, pw = document.getElementById('admin-password').value;
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email: em, password: pw });
+      if (!error) { currentUser=data.user; switchView('admin'); document.getElementById('current-admin-email').textContent = em; document.getElementById('nav-logout-btn').classList.remove('hidden'); document.getElementById('nav-admin-label').textContent='لوحة التحكم';}
+      else { document.getElementById('login-error-alert').classList.remove('hidden'); document.getElementById('login-error-text').textContent='بيانات الدخول غير صحيحة'; }
     }
 
     async function handleLogout() {
       await supabaseClient.auth.signOut(); currentUser = null; switchView('public');
+      document.getElementById('nav-admin-label').textContent='فضاء الإدارة'; document.getElementById('nav-logout-btn').classList.add('hidden');
     }
 
-    function setSearchLang(lang) {
-      searchLang = lang;
-      const iNom = document.getElementById('search-nom');
-      const iPrenom = document.getElementById('search-prenom');
-      if (lang === 'fr') {
-        iNom.dir = 'ltr'; iNom.placeholder = 'مثال: TOUAHRIA';
-        iPrenom.dir = 'ltr'; iPrenom.placeholder = 'مثال: Imad Eddine';
+    function setSearchLang(l) {
+      searchLang = l;
+      const f = document.getElementById('btn-lang-fr'), a = document.getElementById('btn-lang-ar');
+      const n = document.getElementById('search-nom'), p = document.getElementById('search-prenom');
+      if (l === 'fr') {
+        f.className = 'px-5 py-2.5 rounded-lg text-sm font-bold bg-white text-blue-700 shadow-sm';
+        a.className = 'px-5 py-2.5 rounded-lg text-sm font-bold text-slate-500';
+        n.dir='ltr'; n.placeholder='مثال: TOUAHRIA'; n.classList.add('uppercase');
+        p.dir='ltr'; p.placeholder='مثال: Imad Eddine';
+        document.getElementById('label-search-nom').innerHTML = '<span>اللقب (Nom) *</span><span class="text-xs text-slate-400">لاتيني</span>';
+        document.getElementById('label-search-prenom').innerHTML = '<span>الاسم (Prénom) *</span><span class="text-xs text-slate-400">لاتيني</span>';
       } else {
-        iNom.dir = 'rtl'; iNom.placeholder = 'مثال: طواهرية';
-        iPrenom.dir = 'rtl'; iPrenom.placeholder = 'مثال: عماد الدين';
+        a.className = 'px-5 py-2.5 rounded-lg text-sm font-bold bg-white text-blue-700 shadow-sm';
+        f.className = 'px-5 py-2.5 rounded-lg text-sm font-bold text-slate-500';
+        n.dir='rtl'; n.placeholder='مثال: طواهرية'; n.classList.remove('uppercase');
+        p.dir='rtl'; p.placeholder='مثال: عماد الدين';
+        document.getElementById('label-search-nom').innerHTML = '<span>اللقب *</span><span class="text-xs text-slate-400">عربي</span>';
+        document.getElementById('label-search-prenom').innerHTML = '<span>الاسم *</span><span class="text-xs text-slate-400">عربي</span>';
       }
-      ['state-single-match', 'state-not-found', 'state-multiple'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+      resetPublicSearch();
+    }
+
+    function resetPublicSearch() {
+      document.getElementById('search-nom').value=''; document.getElementById('search-prenom').value='';
+      ['state-loading','state-incomplete','state-not-found','state-error','state-multiple','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+      document.getElementById('state-ready').classList.remove('hidden');
+    }
+
+    function genCap() {
+      const a = Math.floor(Math.random()*9)+1, b = Math.floor(Math.random()*9)+1;
+      captchaExpectedResult = a+b; document.getElementById('captcha-question').textContent = `${a} + ${b} = ?`;
+      document.getElementById('captcha-answer').value=''; document.getElementById('captcha-box').classList.remove('hidden'); captchaRequired=true;
     }
 
     async function handlePublicSearch(e) {
       e.preventDefault();
-      const nom = document.getElementById('search-nom').value;
-      const prenom = document.getElementById('search-prenom').value;
-      ['state-single-match', 'state-not-found', 'state-multiple', 'state-ready'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+      const rn = document.getElementById('search-nom').value.trim().replace(/\s+/g,' ');
+      const rp = document.getElementById('search-prenom').value.trim().replace(/\s+/g,' ');
+      if(!rn || !rp) { ['state-ready','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('state-incomplete').classList.remove('hidden'); return; }
+      if(captchaRequired) { if(parseInt(document.getElementById('captcha-answer').value,10)!==captchaExpectedResult) { showToast('خطأ في التحقق','warning'); genCap(); return; } captchaRequired=false; document.getElementById('captcha-box').classList.add('hidden'); searchAttempts=[]; }
+      
+      const now = Date.now(); searchAttempts=searchAttempts.filter(t=>now-t<60000); searchAttempts.push(now);
+      if(searchAttempts.length>5 && !captchaRequired) { genCap(); return; }
+
+      ['state-ready','state-incomplete','state-not-found','state-error','state-multiple','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden'));
       document.getElementById('state-loading').classList.remove('hidden');
 
       try {
-        const { data, error } = await supabaseClient.rpc('search_staff_public', { p_nom: nom, p_prenom: prenom, p_lang: searchLang });
+        const { data, error } = await supabaseClient.rpc('search_staff_public', { p_nom: rn, p_prenom: rp, p_lang: searchLang });
+        if(error) throw error;
         document.getElementById('state-loading').classList.add('hidden');
-        if (data?.status === 'SINGLE_MATCH') renderAssignmentCard(data.data);
-        else if (data?.status === 'MULTIPLE_MATCHES') {
+        if(!data || data.status==='NOT_FOUND' || data.status==='INVALID_INPUT') { document.getElementById('state-not-found').classList.remove('hidden'); }
+        else if(data.status==='SINGLE_MATCH') { renderAssignmentCard(data.data); }
+        else if(data.status==='MULTIPLE_MATCHES') {
+          document.getElementById('multiple-matches-list').innerHTML = data.matches.map(m=>`<div class="p-3 border-b flex justify-between"><div><span class="font-bold">${m.nom} ${m.prenom}</span><div class="text-xs text-slate-500">${m.center} | ${m.task}</div></div><button onclick="selectSpecificMatch('${m.id}','${rn}','${rp}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">اختيار</button></div>`).join('');
           document.getElementById('state-multiple').classList.remove('hidden');
-          document.getElementById('multiple-matches-list').innerHTML = data.matches.map(m=>`<div class="p-3 border-b flex justify-between font-bold">${m.nom} ${m.prenom} - ${m.center} <button onclick="selectSpecificMatch('${m.id}','${nom}','${prenom}')" class="bg-blue-600 text-white px-3 py-1 rounded">اختيار</button></div>`).join('');
         }
-        else document.getElementById('state-not-found').classList.remove('hidden');
-      } catch (e) { alert("خطأ في الاتصال"); }
+      } catch(err) { document.getElementById('state-loading').classList.add('hidden'); document.getElementById('state-error').classList.remove('hidden'); }
     }
 
-    async function selectSpecificMatch(id, nom, prenom) {
-      const { data } = await supabaseClient.rpc('get_staff_card_by_id', { p_id: id, p_nom: nom, p_prenom: prenom, p_lang: searchLang });
-      if(data?.status === 'SUCCESS') {
-        document.getElementById('state-multiple').classList.add('hidden');
-        renderAssignmentCard(data.data);
-      }
+    async function selectSpecificMatch(id, n, p) {
+      document.getElementById('state-multiple').classList.add('hidden'); document.getElementById('state-loading').classList.remove('hidden');
+      try { const { data } = await supabaseClient.rpc('get_staff_card_by_id', { p_id: id, p_nom: n, p_prenom: p, p_lang: searchLang });
+        document.getElementById('state-loading').classList.add('hidden');
+        if(data?.status==='SUCCESS') renderAssignmentCard(data.data); else document.getElementById('state-not-found').classList.remove('hidden');
+      } catch(e) { document.getElementById('state-error').classList.remove('hidden'); }
     }
 
     function renderAssignmentCard(r) {
       currentAssignmentData = r;
-      const nm = r.nom_ar ? `${r.nom_ar} ${r.prenom_ar}` : `${r.nom} ${r.prenom}`;
-      document.getElementById('card-full-name-ar').textContent = nm;
-      document.getElementById('card-center').textContent = r.center;
-      document.getElementById('card-office-number').textContent = r.office_number || 'إدارة المركز';
+      const bAr = document.getElementById('card-arabic-name-block'), wAr = document.getElementById('card-missing-ar-warning');
+      if (r.nom_ar || r.prenom_ar) { bAr.classList.remove('hidden'); wAr.classList.add('hidden'); document.getElementById('card-full-name-ar').textContent = `${r.nom_ar||''} ${r.prenom_ar||''}`; }
+      else { bAr.classList.add('hidden'); wAr.classList.remove('hidden'); }
+
+      document.getElementById('card-center').textContent = r.center || '-';
+      const offEl = document.getElementById('card-office-number');
+      if (r.office_number) { offEl.textContent = r.office_number; offEl.className = 'text-5xl font-black tracking-wider'; } else { offEl.textContent = 'إدارة المركز'; offEl.className = 'text-2xl font-bold'; }
+      
       document.getElementById('card-wilaya').textContent = r.wilaya || 'أدرار';
       document.getElementById('card-election-municipality').textContent = r.election_municipality || 'أدرار';
-      document.getElementById('card-task').textContent = r.task || 'مؤطر';
-      document.getElementById('card-birth-date').textContent = r.birth_date || '';
-      document.getElementById('card-birth-place').textContent = r.birth_place || '';
-      document.getElementById('card-print-timestamp').textContent = new Date().toLocaleString('ar-DZ');
+      document.getElementById('card-task').textContent = r.task || '-';
+      
+      const bd = document.getElementById('card-birth-date-box'); if(r.birth_date){ bd.classList.remove('hidden'); document.getElementById('card-birth-date').textContent=r.birth_date; } else bd.classList.add('hidden');
+      const bp = document.getElementById('card-birth-place-box'); if(r.birth_place){ bp.classList.remove('hidden'); document.getElementById('card-birth-place').textContent=r.birth_place; } else bp.classList.add('hidden');
+      
+      const now = new Date(); document.getElementById('card-print-timestamp').textContent = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB');
       document.getElementById('state-single-match').classList.remove('hidden');
     }
 
-    // ==== تصحيح جوهري للطباعة واستخراج الـ PDF ====
-    // نظراً لقصور مكتبات الـ JS في معالجة الحروف العربية، نعتمد على محرك الطباعة المدمج في المتصفح الذي يعطي نتيجة PDF عربية صحيحة 100%
-    function downloadAssignmentPDF() {
-      const originalTitle = document.title;
+    // =========================================================================
+    // دوال الطباعة واستخراج الـ PDF (اعتماداً على محرك المتصفح للحفاظ على اللغة العربية)
+    // =========================================================================
+    function printCardOnly() {
       const name = currentAssignmentData ? (currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' + (currentAssignmentData.prenom_ar || currentAssignmentData.prenom) : 'مؤطر';
-      document.title = `بطاقة_تعيين_${name}`;
+      const originalTitle = document.title;
+      document.title = `طباعة_تعيين_${name}`;
       window.print();
-      setTimeout(() => { document.title = originalTitle; }, 2000);
+      setTimeout(() => { document.title = originalTitle; }, 1000);
     }
-    // ===============================================
 
+    function saveAsNativePDF() {
+      showToast('للحفاظ على دقة اللغة العربية، يرجى اختيار "Save as PDF / حفظ بتنسيق PDF" من نافذة الطباعة التي ستظهر الآن.', 'info');
+      setTimeout(() => {
+        const name = currentAssignmentData ? (currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' + (currentAssignmentData.prenom_ar || currentAssignmentData.prenom) : 'مؤطر';
+        const originalTitle = document.title;
+        document.title = `بطاقة_تعيين_${name}`;
+        window.print();
+        setTimeout(() => { document.title = originalTitle; }, 1500);
+      }, 2000);
+    }
+
+    // إدارة لوحة المشرف والإحصائيات
     function switchAdminTab(t) {
-      document.getElementById('admin-tab-stats').classList.add('hidden');
-      document.getElementById('admin-tab-import').classList.add('hidden');
+      ['stats','records','import'].forEach(id => {
+        document.getElementById(`admin-tab-${id}`).classList.add('hidden');
+        document.getElementById(`tab-btn-${id}`).className = 'admin-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center gap-2 cursor-pointer';
+      });
       document.getElementById(`admin-tab-${t}`).classList.remove('hidden');
+      document.getElementById(`tab-btn-${t}`).className = 'admin-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-900 text-white transition flex items-center gap-2 cursor-pointer';
     }
 
     async function loadAdminDashboardData() {
-      let fetchedAll = [], from = 0, step = 1000, hasMore = true;
-      while (hasMore) {
-        const { data } = await supabaseClient.from('staff').select('*').range(from, from + step - 1);
-        if (data && data.length > 0) { fetchedAll = fetchedAll.concat(data); from += step; if(data.length<step) hasMore=false; }
-        else hasMore = false;
-      }
-      allStaffCache = fetchedAll;
-      computeStatistics();
+      try {
+        let fetched = [], from = 0, step = 1000, more = true;
+        while(more) {
+          const { data, error } = await supabaseClient.from('staff').select('*').range(from, from+step-1);
+          if(error) throw error;
+          if(data && data.length>0) { fetched=fetched.concat(data); from+=step; if(data.length<step) more=false; } else more=false;
+        }
+        allStaffCache = fetched;
+        computeStats();
+        populateCenters();
+        handleAdminFilterChange();
+      } catch(e) { showToast('خطأ في جلب البيانات','error'); }
     }
 
-    // ==== تصحيح دالة حساب الإحصائيات ====
-    function computeStatistics() {
+    // تصحيح دوال الإحصائيات (تنظيف المسافات ومعالجة القيم الفارغة)
+    function computeStats() {
       document.getElementById('stat-total-staff').textContent = allStaffCache.length;
-      
-      const wilayas = new Set();
-      const muns = new Set();
-      const centers = new Set();
-      const offices = new Set();
-      const tasks = new Set();
-      let rev = 0;
-
+      const w=new Set(), m=new Set(), c=new Set(), o=new Set(), t=new Set(); let r=0;
       allStaffCache.forEach(s => {
-        if(s.wilaya && s.wilaya.trim()!=='') wilayas.add(s.wilaya.trim());
-        const mun = s.election_municipality || s.municipality;
-        if(mun && mun.trim()!=='') muns.add(mun.trim());
-        if(s.center && s.center.trim()!=='') centers.add(s.center.trim());
-        if(s.office_number && s.office_number.trim()!=='') offices.add(s.office_number.trim());
-        if(s.task && s.task.trim()!=='') tasks.add(s.task.trim());
-        if(s.needs_review) rev++;
+        if(s.wilaya && s.wilaya.trim()!=='') w.add(s.wilaya.trim());
+        const mun = s.election_municipality || s.municipality; if(mun && mun.trim()!=='') m.add(mun.trim());
+        if(s.center && s.center.trim()!=='') c.add(s.center.trim());
+        if(s.office_number && s.office_number.trim()!=='') o.add(s.office_number.trim());
+        if(s.task && s.task.trim()!=='') t.add(s.task.trim());
+        if(s.needs_review) r++;
       });
+      document.getElementById('stat-total-wilayas').textContent = w.size || 1;
+      document.getElementById('stat-total-municipalities').textContent = m.size || 1;
+      document.getElementById('stat-total-centers').textContent = c.size;
+      document.getElementById('stat-total-offices').textContent = o.size;
+      document.getElementById('stat-total-tasks').textContent = t.size;
+      document.getElementById('stat-complete-records').textContent = allStaffCache.length - r;
+      document.getElementById('stat-review-records').textContent = r;
 
-      document.getElementById('stat-total-wilayas').textContent = wilayas.size || 1; // الافتراضي أدرار
-      document.getElementById('stat-total-municipalities').textContent = muns.size || 1;
-      document.getElementById('stat-total-centers').textContent = centers.size;
-      document.getElementById('stat-total-offices').textContent = offices.size;
-      document.getElementById('stat-total-tasks').textContent = tasks.size;
-      document.getElementById('stat-complete-records').textContent = allStaffCache.length - rev;
-      document.getElementById('stat-review-records').textContent = rev;
-
-      renderCharts(tasks, centers);
+      renderCharts(t, c);
     }
 
-    function renderCharts(tasksSet, centersSet) {
-      const tCounts = {}; const cCounts = {};
-      allStaffCache.forEach(s => { 
-        if(s.task) tCounts[s.task] = (tCounts[s.task]||0)+1; 
-        if(s.center) cCounts[s.center] = (cCounts[s.center]||0)+1; 
-      });
+    function renderCharts(tasks, centers) {
+      const tc={}, cc={};
+      allStaffCache.forEach(s => { if(s.task) tc[s.task]=(tc[s.task]||0)+1; if(s.center) cc[s.center]=(cc[s.center]||0)+1; });
+      const tMax = Math.max(...Object.values(tc), 1);
+      document.getElementById('chart-tasks').innerHTML = Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(e=>`<div><div class="flex justify-between text-xs font-bold text-slate-700 mb-1"><span>${e[0]}</span><span>${e[1]}</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width:${(e[1]/tMax)*100}%"></div></div></div>`).join('');
       
-      const tkHtml = Object.entries(tCounts).sort((a,b)=>b[1]-a[1]).map(e=>`<div class="flex justify-between text-sm py-1 border-b"><span>${e[0]}</span><span class="font-bold">${e[1]}</span></div>`).join('');
-      document.getElementById('chart-tasks').innerHTML = tkHtml || 'لا توجد بيانات';
-      
-      const ckHtml = Object.entries(cCounts).sort((a,b)=>b[1]-a[1]).map(e=>`<div class="flex justify-between text-sm py-1 border-b"><span>${e[0]}</span><span class="font-bold">${e[1]}</span></div>`).join('');
-      document.getElementById('chart-centers').innerHTML = ckHtml || 'لا توجد بيانات';
+      const cMax = Math.max(...Object.values(cc), 1);
+      document.getElementById('chart-centers').innerHTML = Object.entries(cc).sort((a,b)=>b[1]-a[1]).map(e=>`<div><div class="flex justify-between text-xs font-bold text-slate-700 mb-1"><span>${e[0]}</span><span>${e[1]}</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-indigo-600 h-2 rounded-full" style="width:${(e[1]/cMax)*100}%"></div></div></div>`).join('');
     }
 
-    // محرك الاستيراد من Word
+    function populateCenters() {
+      const s = document.getElementById('filter-center');
+      s.innerHTML = '<option value="">جميع المراكز</option>' + [...new Set(allStaffCache.map(x=>x.center).filter(Boolean))].sort().map(c=>`<option value="${c}">${c}</option>`).join('');
+    }
+
+    function handleAdminFilterChange() {
+      const q = document.getElementById('admin-search-input').value.toLowerCase();
+      const c = document.getElementById('filter-center').value;
+      const s = document.getElementById('filter-status').value;
+      const res = allStaffCache.filter(r => {
+        if(c && r.center !== c) return false;
+        if(s==='review' && !r.needs_review) return false;
+        if(s==='complete' && r.needs_review) return false;
+        if(q) return (`${r.nom||''} ${r.prenom||''} ${r.nom_ar||''} ${r.prenom_ar||''} ${r.office_number||''}`).toLowerCase().includes(q);
+        return true;
+      });
+      document.getElementById('admin-records-tbody').innerHTML = res.slice(0,50).map(r=>`
+        <tr class="border-b"><td class="p-3">${r.nom_ar||''} ${r.prenom_ar||''}</td><td class="p-3 font-bold" dir="ltr">${r.nom} ${r.prenom}</td><td class="p-3 text-xs">${r.center}</td><td class="p-3 text-center">${r.office_number||'-'}</td><td class="p-3 text-xs">${r.task}</td></tr>
+      `).join('');
+    }
+
+    // محرك الاستيراد السريع
     async function handleFilesSelected(e) {
-      const files = Array.from(e.target.files);
-      if(!files.length) return;
+      const files = Array.from(e.target.files); if(!files.length) return;
       parsedImportBuffer = [];
-      for(let file of files) {
-        const buf = await file.arrayBuffer();
-        const res = await mammoth.convertToHtml({arrayBuffer: buf});
-        const doc = new DOMParser().parseFromString(res.value, 'text/html');
-        
-        let cCenter='', cOffice=null;
-        doc.body.querySelectorAll('p, table').forEach(el => {
-          if(el.tagName==='P') {
-            const txt = el.textContent;
-            if(txt.match(/المركز\s*[:：]\s*(.+?)(?=\s+البلدية|$)/)) cCenter = txt.match(/المركز\s*[:：]\s*(.+?)(?=\s+البلدية|$)/)[1].trim();
-            if(txt.match(/رقم المكتب\s*[:：]\s*([0-9A-Za-z]+)/)) cOffice = txt.match(/رقم المكتب\s*[:：]\s*([0-9A-Za-z]+)/)[1].trim();
-            if(txt.includes('مؤطري مركز')) cOffice=null;
-          } else if (el.tagName==='TABLE') {
-             const rows = Array.from(el.querySelectorAll('tr'));
-             let hIdx=-1, cols={};
-             for(let i=0; i<rows.length; i++) {
-               const cells = Array.from(rows[i].querySelectorAll('td,th')).map(c=>c.textContent.trim().toLowerCase());
-               if(cells.includes('nom') && cells.includes('prenom')) {
-                 hIdx = i;
-                 cells.forEach((c, j) => {
-                   if(c.includes('لقب') && !c.includes('nom')) cols.arN = j;
-                   else if(c.includes('اسم') && !c.includes('prenom')) cols.arP = j;
-                   else if(c==='nom') cols.frN = j;
-                   else if(c==='prenom' || c==='prénom') cols.frP = j;
-                   else if(c.includes('ميلاد') && c.includes('تاريخ')) cols.bd = j;
-                   else if(c.includes('مهام')) cols.task = j;
-                 });
-                 break;
+      for(let f of files) {
+        if(f.name.endsWith('.docx')) {
+          const buf = await f.arrayBuffer(); const res = await mammoth.convertToHtml({arrayBuffer: buf});
+          const doc = new DOMParser().parseFromString(res.value, 'text/html');
+          let cC='', cO=null;
+          doc.body.querySelectorAll('p, table').forEach(el => {
+            if(el.tagName==='P') {
+              const txt = el.textContent;
+              if(txt.match(/المركز\s*:\s*(.+?)(?=\s+البلدية|$)/)) cC = txt.match(/المركز\s*:\s*(.+?)(?=\s+البلدية|$)/)[1].trim();
+              if(txt.match(/رقم المكتب\s*:\s*([0-9A-Za-z]+)/)) cO = txt.match(/رقم المكتب\s*:\s*([0-9A-Za-z]+)/)[1].trim();
+              if(txt.includes('مؤطري مركز')) cO=null;
+            } else if (el.tagName==='TABLE') {
+               const rows = Array.from(el.querySelectorAll('tr')); let hIdx=-1, cols={};
+               for(let i=0; i<rows.length; i++) {
+                 const cells = Array.from(rows[i].querySelectorAll('td,th')).map(c=>c.textContent.trim().toLowerCase());
+                 if(cells.includes('nom') && cells.includes('prenom')) {
+                   hIdx = i; cells.forEach((c, j) => {
+                     if(c.includes('لقب') && !c.includes('nom')) cols.arN = j; else if(c.includes('اسم') && !c.includes('prenom')) cols.arP = j;
+                     else if(c==='nom') cols.frN = j; else if(c==='prenom' || c==='prénom') cols.frP = j;
+                     else if(c.includes('ميلاد') && c.includes('تاريخ')) cols.bd = j; else if(c.includes('مهام')) cols.task = j;
+                   }); break;
+                 }
                }
-             }
-             if(hIdx!==-1) {
-               for(let i=hIdx+1; i<rows.length; i++) {
-                 const cells = Array.from(rows[i].querySelectorAll('td,th')).map(c=>c.textContent.trim());
-                 if(cells.length<4) continue;
-                 if(!cells[cols.frN] && !cells[cols.frP]) continue;
-                 parsedImportBuffer.push({
-                   center: cCenter || file.name.replace('.docx',''),
-                   office_number: cOffice,
-                   nom_ar: cells[cols.arN]||'', prenom_ar: cells[cols.arP]||'',
-                   nom: cells[cols.frN], prenom: cells[cols.frP],
-                   birth_date: cells[cols.bd]||null, task: cells[cols.task]||'مؤطر',
-                   wilaya: 'أدرار'
-                 });
+               if(hIdx!==-1) {
+                 for(let i=hIdx+1; i<rows.length; i++) {
+                   const cells = Array.from(rows[i].querySelectorAll('td,th')).map(c=>c.textContent.trim());
+                   if(cells.length<4 || (!cells[cols.frN] && !cells[cols.frP])) continue;
+                   parsedImportBuffer.push({ center: cC||f.name, office_number: cO, nom_ar: cells[cols.arN]||'', prenom_ar: cells[cols.arP]||'', nom: cells[cols.frN], prenom: cells[cols.frP], task: cells[cols.task]||'مؤطر', wilaya: 'أدرار' });
+                 }
                }
-             }
-          }
-        });
+            }
+          });
+        }
       }
       document.getElementById('import-preview-section').classList.remove('hidden');
       document.getElementById('import-preview-tbody').innerHTML = parsedImportBuffer.slice(0,50).map(r=>`<tr><td class="p-2 border">${r.nom} ${r.prenom}</td><td class="p-2 border">${r.center}</td><td class="p-2 border">${r.task}</td></tr>`).join('');
@@ -516,12 +845,8 @@
 
     async function commitImportedRecords() {
       const CHUNK = 200;
-      for(let i=0; i<parsedImportBuffer.length; i+=CHUNK) {
-        await supabaseClient.from('staff').insert(parsedImportBuffer.slice(i, i+CHUNK));
-      }
-      document.getElementById('import-preview-section').classList.add('hidden');
-      showToast('تم استيراد البيانات بنجاح', 'success');
-      loadAdminDashboardData();
+      for(let i=0; i<parsedImportBuffer.length; i+=CHUNK) { await supabaseClient.from('staff').insert(parsedImportBuffer.slice(i, i+CHUNK)); }
+      document.getElementById('import-preview-section').classList.add('hidden'); showToast('تم الاستيراد بنجاح', 'success'); loadAdminDashboardData();
     }
   </script>
 </body>
