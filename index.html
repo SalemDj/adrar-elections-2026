@@ -44,52 +44,71 @@
     }
 
     /* ========================================================= */
-    /* تنسيقات الطباعة الاحترافية - تم إصلاح المشكلة الجذرية */
+    /* تنسيقات استخراج PDF الاحترافية - حماية من الصفحة البيضاء */
     /* ========================================================= */
     @media print {
       @page {
-        size: A4 landscape; /* ورقة A4 أفقية */
-        margin: 10mm; /* هوامش آمنة للطباعة */
+        size: A4 landscape;
+        margin: 0; /* إلغاء هوامش المتصفح الافتراضية للتحكم الكامل */
       }
       
       html, body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
         background-color: #ffffff !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        overflow: hidden !important; /* منع أي صفحات إضافية */
       }
 
-      /* إخفاء كل ما يحمل هذا الكلاس بشكل آمن */
-      .no-print { 
-        display: none !important; 
+      /* 1. إخفاء جميع العناصر الجانبية بالقوة المطلقة */
+      header, footer, #toast-container, form, .bg-gradient-to-l, 
+      #state-ready, #state-loading, #state-incomplete, #state-not-found, 
+      #state-error, #state-multiple, .no-print {
+        display: none !important;
       }
-      
-      /* إزالة هوامش الحاويات وتأثيرات Flexbox التي تدفع البطاقة لصفحة ثانية */
-      body, main, #public-view, #public-view > div, #search-results-area, #state-single-match {
+
+      /* 2. تحرير البطاقة من جميع الحاويات (Flexbox/Grid) التي تسبب اختفاءها */
+      main, #public-view, #public-view > div, #search-results-area, #state-single-match {
         display: block !important;
+        position: static !important;
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
-        max-width: 100% !important;
+        max-width: none !important;
         height: auto !important;
-        min-height: 0 !important; /* إلغاء الارتفاع الإجباري */
+        overflow: visible !important;
         background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
       }
 
-      /* تنسيق البطاقة نفسها لتظهر في صفحة واحدة A4 */
-      #printable-assignment-card {
-        border: 2px solid #1e3a8a !important;
-        border-radius: 12px !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        min-height: 0 !important; /* التغلب على inline-style */
-        page-break-inside: avoid !important; /* منع تقسيم البطاقة */
+      /* 3. إخفاء الشريط العلوي الذي يحتوي على الأزرار (أيقونة الصح والزر) */
+      #state-single-match > div:first-child {
+        display: none !important;
       }
-      
-      /* تعديل أحجام بعض العناصر داخل البطاقة لتناسب ورقة الطباعة */
-      #printable-assignment-card h2 { font-size: 2.25rem !important; }
-      #card-office-number { font-size: 3rem !important; }
+
+      /* 4. تصميم البطاقة الداخلي ليأخذ مقاس ورقة A4 بالعرض ويتوسط الشاشة */
+      #printable-assignment-card {
+        width: 100% !important;
+        height: 100vh !important; /* تغطية الشاشة بالكامل */
+        margin: 0 !important;
+        padding: 1.5cm 2cm !important; /* هوامش داخلية أنيقة */
+        border: 2px solid #1e3a8a !important; /* إطار أزرق رسمي */
+        border-radius: 16px !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important; /* توزيع متناسق للمسافات */
+      }
+
+      /* تكبير النصوص قليلاً لتتناسب مع حجم الورقة عند الطباعة */
+      #printable-assignment-card h2 { font-size: 2.75rem !important; }
+      #card-office-number { font-size: 4rem !important; }
+      #card-center { font-size: 2.25rem !important; }
     }
 
     /* شريط تمرير أنيق للجداول */
@@ -158,7 +177,7 @@
             اعرف مركز ومكتب تعيينك
           </h2>
           <p class="text-blue-100 text-sm sm:text-base mt-2 leading-relaxed">
-            أدخل اسمك ولقبك باللغة اللاتينية أو العربية كما وردا في قائمة المؤطرين للاطلاع على معلومات تعيينك.
+            أدخل اسمك ولقبك وتاريخ ميلادك للاطلاع على معلومات تعيينك بدقة وبكل سرية.
           </p>
         </div>
 
@@ -171,12 +190,11 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <!-- الحقل الأول: اللقب -->
             <div>
               <label id="label-search-nom" for="search-nom" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
                 <span>اللقب (Nom) <span class="text-red-500">*</span></span>
-                <span class="text-xs font-medium text-slate-400">بالحروف اللاتينية</span>
               </label>
               <div class="relative">
                 <input
@@ -198,7 +216,6 @@
             <div>
               <label id="label-search-prenom" for="search-prenom" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
                 <span>الاسم (Prénom) <span class="text-red-500">*</span></span>
-                <span class="text-xs font-medium text-slate-400">بالحروف اللاتينية</span>
               </label>
               <div class="relative">
                 <input
@@ -215,14 +232,29 @@
                 </div>
               </div>
             </div>
+
+            <!-- الحقل الثالث: تاريخ الميلاد -->
+            <div>
+              <label for="search-dob" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
+                <span>تاريخ الميلاد <span class="text-red-500">*</span></span>
+              </label>
+              <div class="relative">
+                <input
+                  type="date"
+                  id="search-dob"
+                  required
+                  class="w-full px-4 py-3.5 font-semibold text-base sm:text-lg bg-slate-50 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition text-slate-700 text-center"
+                />
+              </div>
+            </div>
           </div>
 
-          <!-- تحدي الحماية CAPTCHA يظهر فقط عند تكرار المحاولات (Rate Limiting) -->
+          <!-- تحدي الحماية CAPTCHA يظهر فقط عند تكرار المحاولات -->
           <div id="captcha-box" class="hidden p-4 bg-amber-50 border border-amber-200 rounded-xl">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div class="flex items-center gap-2.5 text-amber-900">
                 <i data-lucide="shield-alert" class="w-5 h-5 text-amber-600 shrink-0"></i>
-                <span class="text-sm font-bold">تحقق أمني: يرجى حل العملية الحسابية للمتابعة: <span id="captcha-question" dir="ltr" class="px-2 py-0.5 bg-white rounded border border-amber-300 font-mono text-base"></span></span>
+                <span class="text-sm font-bold">تحقق أمني: يرجى حل العملية الحسابية: <span id="captcha-question" dir="ltr" class="px-2 py-0.5 bg-white rounded border border-amber-300 font-mono text-base"></span></span>
               </div>
               <input
                 type="number"
@@ -238,7 +270,7 @@
             <button
               type="submit"
               id="btn-search-submit"
-              class="flex-1 py-3.5 px-6 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-blue-400 text-white font-bold text-base sm:text-lg rounded-xl shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer"
+              class="flex-1 py-3.5 px-6 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-base sm:text-lg rounded-xl shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer"
             >
               <i data-lucide="search" class="w-5 h-5"></i>
               <span>البحث عن التعيين</span>
@@ -256,7 +288,7 @@
       </div>
 
       <!-- =================================================================== -->
-      <!-- منطقة عرض حالات البحث والنتائج (Search States & Results) -->
+      <!-- منطقة عرض حالات البحث والنتائج -->
       <!-- =================================================================== -->
       <div id="search-results-area" class="mt-8">
         
@@ -266,13 +298,13 @@
           </div>
           <h3 class="text-base font-bold text-slate-800">في انتظار إدخال بيانات الاستعلام</h3>
           <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
-            تأكد من كتابة اللقب والاسم كما هما مدونان في القوائم الرسمية، ثم اضغط على "البحث عن التعيين".
+            تأكد من كتابة اللقب والاسم وتاريخ الميلاد كما وردت في القوائم الرسمية.
           </p>
         </div>
 
         <div id="state-loading" class="hidden text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 shadow-sm no-print">
           <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <h3 class="text-base font-bold text-blue-950">جاري البحث في قاعدة البيانات المعتمدة...</h3>
+          <h3 class="text-base font-bold text-blue-950">جاري البحث ومطابقة البيانات...</h3>
         </div>
 
         <div id="state-incomplete" class="hidden p-5 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3.5 no-print">
@@ -281,7 +313,7 @@
           </div>
           <div>
             <h3 class="text-base font-bold text-amber-950">بيانات البحث غير مكتملة</h3>
-            <p class="text-sm text-amber-800 mt-1">يرجى إدخال كل من <strong>اللقب</strong> و<strong>الاسم</strong> معاً لإجراء عملية المطابقة.</p>
+            <p class="text-sm text-amber-800 mt-1">يرجى إدخال اللقب، الاسم، وتاريخ الميلاد معاً لإجراء عملية المطابقة.</p>
           </div>
         </div>
 
@@ -291,7 +323,7 @@
           </div>
           <h3 class="text-lg font-extrabold text-slate-900">لم يتم العثور على بيانات مطابقة</h3>
           <p id="not-found-message" class="text-sm text-slate-600 mt-2 max-w-lg mx-auto leading-relaxed">
-            لم يتم العثور على بيانات مطابقة. يرجى التأكد من كتابة الاسم واللقب كما وردا في القائمة.
+            تأكد من إدخال البيانات بدقة تامة وبنفس اللغة المحددة.
           </p>
         </div>
 
@@ -301,9 +333,6 @@
           </div>
           <div>
             <h3 class="text-base font-extrabold text-red-950">تعذر الاتصال بقاعدة البيانات</h3>
-            <p id="error-message-text" class="text-sm text-red-800 mt-1">
-              حدث خطأ تقني أثناء الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.
-            </p>
           </div>
         </div>
 
@@ -314,17 +343,15 @@
               <i data-lucide="users" class="w-5 h-5"></i>
             </div>
             <div>
-              <h3 class="text-base sm:text-lg font-extrabold text-blue-950">يوجد أكثر من سجل مطابق لهذا الاسم واللقب</h3>
-              <p class="text-xs sm:text-sm text-blue-800">حمايةً لخصوصية البيانات، يرجى اختيار السجل الخاص بك بناءً على المركز والمهمة:</p>
+              <h3 class="text-base font-extrabold text-blue-950">يوجد أكثر من سجل مطابق (نفس الاسم وتاريخ الميلاد)</h3>
+              <p class="text-xs text-blue-800">يرجى اختيار السجل الخاص بك:</p>
             </div>
           </div>
           <div id="multiple-matches-list" class="divide-y divide-slate-100 p-4 space-y-2"></div>
         </div>
 
-        <!-- 7. حالة العثور على نتيجة: بطاقة التعيين (Assignment Card) -->
+        <!-- بطاقة التعيين الرسمية القابلة للطباعة -->
         <div id="state-single-match" class="hidden space-y-5">
-          
-          <!-- أزرار الطباعة والـ PDF (مفصولة ومصححة) -->
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-emerald-50 border border-emerald-200 px-5 py-4 rounded-2xl no-print">
             <div class="flex items-center gap-2.5 text-emerald-900 w-full sm:w-auto">
               <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600 shrink-0"></i>
@@ -332,17 +359,17 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <button
-                onclick="printCardOnly()"
-                class="flex-1 sm:flex-initial px-5 py-2.5 bg-blue-900 hover:bg-blue-950 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>طباعة البطاقة</span>
+              <button onclick="saveAsNativePDF()" class="flex-1 sm:flex-initial px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer">
+                <i data-lucide="file-text" class="w-5 h-5"></i><span>حفظ البطاقة كـ PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="printable-assignment-card" class="bg-white rounded-2xl border-2 border-blue-900/20 shadow-lg overflow-hidden flex flex-col">
               </button>
               
               <button
                 onclick="saveAsNativePDF()"
-                title="يستخدم محرك طباعة المتصفح لضمان سلامة اللغة العربية"
                 class="flex-1 sm:flex-initial px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <i data-lucide="file-text" class="w-4 h-4"></i>
@@ -351,12 +378,9 @@
             </div>
           </div>
 
-          <!-- بطاقة التعيين الرسمية القابلة للطباعة -->
-          <!-- تم إزالة الارتفاع الإجباري لتجنب مشاكل الصفحة الثانية -->
-          <div id="printable-assignment-card" class="bg-white rounded-2xl border-2 border-blue-900/20 shadow-lg overflow-hidden flex flex-col">
+          <div id="printable-assignment-card" class="bg-white rounded-2xl border-2 border-blue-900/20 shadow-lg overflow-hidden flex flex-col justify-between">
             
             <div>
-              <!-- القسم الأول: الهوية -->
               <div class="bg-gradient-to-l from-slate-50 to-blue-50/60 px-6 py-6 sm:px-8 border-b border-slate-200">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-blue-900 text-white text-sm font-bold">
@@ -375,7 +399,7 @@
                   <span class="text-sm font-bold">الاسم باللغة العربية غير متوفر في القاعدة.</span>
                 </div>
 
-                <div id="card-birth-info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-200/80">
+                <div id="card-birth-info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-200/80">
                   <div id="card-birth-date-box" class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-blue-800 shrink-0">
                       <i data-lucide="calendar" class="w-5 h-5"></i>
@@ -398,7 +422,6 @@
                 </div>
               </div>
 
-              <!-- القسم الثاني: معلومات التعيين -->
               <div class="p-6 sm:p-8 space-y-6 bg-white">
                 <div class="flex items-center gap-2 text-blue-900 font-extrabold text-lg border-b border-slate-100 pb-3">
                   <i data-lucide="building-2" class="w-6 h-6 text-blue-600"></i>
@@ -406,12 +429,10 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <!-- المركز -->
                   <div class="md:col-span-2 bg-blue-50/80 border-2 border-blue-200 rounded-2xl p-6 flex flex-col justify-center">
                     <span class="text-sm font-bold text-blue-700 uppercase tracking-wider mb-2">المركز الانتخابي المعين به</span>
                     <p id="card-center" class="text-2xl sm:text-3xl font-black text-blue-950 leading-snug"></p>
                   </div>
-                  <!-- المكتب -->
                   <div class="bg-gradient-to-br from-blue-900 to-blue-800 text-white rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-md">
                     <span class="text-sm font-bold text-blue-200 mb-2">رقم المكتب</span>
                     <p id="card-office-number" class="text-5xl font-black tracking-wider"></p>
@@ -435,7 +456,6 @@
               </div>
             </div>
 
-            <!-- التذييل الرسمي يظهر في أسفل الصفحة عند الطباعة -->
             <div class="bg-slate-100 px-6 py-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-slate-600 mt-auto">
               <div class="font-bold text-slate-800">
                 الدليل الإلكتروني لمؤطري مراكز ومكاتب التصويت - بلدية أدرار • الانتخابات المحلية – نوفمبر 2026
@@ -448,13 +468,6 @@
 
       </div>
     </div>
-
-    <!-- تذييل الصفحة العامة -->
-    <footer class="bg-white border-t border-slate-200 py-6 mt-12 no-print">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-xs sm:text-sm text-slate-500">
-        <p class="font-bold text-slate-700">الدليل الإلكتروني لمؤطري مراكز ومكاتب التصويت - بلدية أدرار – الانتخابات المحلية نوفمبر 2026</p>
-      </div>
-    </footer>
   </main>
 
   <!-- ===================================================================== -->
@@ -563,7 +576,7 @@
   </section>
 
   <!-- ===================================================================== -->
-  <!-- السكريبت (التصحيحات الجديدة: الطباعة والإحصائيات) -->
+  <!-- السكريبت (المنطق البرمجي) -->
   <!-- ===================================================================== -->
   <script>
     const SUPABASE_URL = 'https://kznnwyhoyyqgkmopnwpn.supabase.co';
@@ -591,7 +604,7 @@
     function showToast(msg, type='info') {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
-      t.className = `px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white mb-2 ${type==='success'?'bg-emerald-600':'bg-blue-900'}`;
+      t.className = `px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white mb-2 ${type==='success'?'bg-emerald-600':type==='warning'?'bg-amber-600':'bg-blue-900'}`;
       t.textContent = msg;
       c.appendChild(t);
       setTimeout(()=>t.remove(), 3000);
@@ -630,21 +643,21 @@
         a.className = 'px-5 py-2.5 rounded-lg text-sm font-bold text-slate-500';
         n.dir='ltr'; n.placeholder='مثال: TOUAHRIA'; n.classList.add('uppercase');
         p.dir='ltr'; p.placeholder='مثال: Imad Eddine';
-        document.getElementById('label-search-nom').innerHTML = '<span>اللقب (Nom) <span class="text-red-500">*</span></span><span class="text-xs text-slate-400">لاتيني</span>';
-        document.getElementById('label-search-prenom').innerHTML = '<span>الاسم (Prénom) <span class="text-red-500">*</span></span><span class="text-xs text-slate-400">لاتيني</span>';
+        document.getElementById('label-search-nom').innerHTML = '<span>اللقب (Nom) *</span><span class="text-xs text-slate-400">لاتيني</span>';
+        document.getElementById('label-search-prenom').innerHTML = '<span>الاسم (Prénom) *</span><span class="text-xs text-slate-400">لاتيني</span>';
       } else {
         a.className = 'px-5 py-2.5 rounded-lg text-sm font-bold bg-white text-blue-700 shadow-sm';
         f.className = 'px-5 py-2.5 rounded-lg text-sm font-bold text-slate-500';
         n.dir='rtl'; n.placeholder='مثال: طواهرية'; n.classList.remove('uppercase');
         p.dir='rtl'; p.placeholder='مثال: عماد الدين';
-        document.getElementById('label-search-nom').innerHTML = '<span>اللقب <span class="text-red-500">*</span></span><span class="text-xs text-slate-400">عربي</span>';
-        document.getElementById('label-search-prenom').innerHTML = '<span>الاسم <span class="text-red-500">*</span></span><span class="text-xs text-slate-400">عربي</span>';
+        document.getElementById('label-search-nom').innerHTML = '<span>اللقب *</span><span class="text-xs text-slate-400">عربي</span>';
+        document.getElementById('label-search-prenom').innerHTML = '<span>الاسم *</span><span class="text-xs text-slate-400">عربي</span>';
       }
       resetPublicSearch();
     }
 
     function resetPublicSearch() {
-      document.getElementById('search-nom').value=''; document.getElementById('search-prenom').value='';
+      document.getElementById('search-nom').value=''; document.getElementById('search-prenom').value=''; document.getElementById('search-dob').value='';
       ['state-loading','state-incomplete','state-not-found','state-error','state-multiple','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden'));
       document.getElementById('state-ready').classList.remove('hidden');
     }
@@ -659,7 +672,9 @@
       e.preventDefault();
       const rn = document.getElementById('search-nom').value.trim().replace(/\s+/g,' ');
       const rp = document.getElementById('search-prenom').value.trim().replace(/\s+/g,' ');
-      if(!rn || !rp) { ['state-ready','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('state-incomplete').classList.remove('hidden'); return; }
+      const dob = document.getElementById('search-dob').value;
+
+      if(!rn || !rp || !dob) { ['state-ready','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('state-incomplete').classList.remove('hidden'); return; }
       if(captchaRequired) { if(parseInt(document.getElementById('captcha-answer').value,10)!==captchaExpectedResult) { showToast('خطأ في التحقق','warning'); genCap(); return; } captchaRequired=false; document.getElementById('captcha-box').classList.add('hidden'); searchAttempts=[]; }
       
       const now = Date.now(); searchAttempts=searchAttempts.filter(t=>now-t<60000); searchAttempts.push(now);
@@ -669,21 +684,21 @@
       document.getElementById('state-loading').classList.remove('hidden');
 
       try {
-        const { data, error } = await supabaseClient.rpc('search_staff_public', { p_nom: rn, p_prenom: rp, p_lang: searchLang });
+        const { data, error } = await supabaseClient.rpc('search_staff_public', { p_nom: rn, p_prenom: rp, p_birth_date: dob, p_lang: searchLang });
         if(error) throw error;
         document.getElementById('state-loading').classList.add('hidden');
         if(!data || data.status==='NOT_FOUND' || data.status==='INVALID_INPUT') { document.getElementById('state-not-found').classList.remove('hidden'); }
         else if(data.status==='SINGLE_MATCH') { renderAssignmentCard(data.data); }
         else if(data.status==='MULTIPLE_MATCHES') {
-          document.getElementById('multiple-matches-list').innerHTML = data.matches.map(m=>`<div class="p-3 border-b flex justify-between"><div><span class="font-bold">${m.nom} ${m.prenom}</span><div class="text-xs text-slate-500">${m.center} | ${m.task}</div></div><button onclick="selectSpecificMatch('${m.id}','${rn}','${rp}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">اختيار</button></div>`).join('');
+          document.getElementById('multiple-matches-list').innerHTML = data.matches.map(m=>`<div class="p-3 border-b flex justify-between"><div><span class="font-bold">${m.nom} ${m.prenom}</span><div class="text-xs text-slate-500">${m.center} | ${m.task}</div></div><button onclick="selectSpecificMatch('${m.id}','${rn}','${rp}','${dob}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">اختيار</button></div>`).join('');
           document.getElementById('state-multiple').classList.remove('hidden');
         }
       } catch(err) { document.getElementById('state-loading').classList.add('hidden'); document.getElementById('state-error').classList.remove('hidden'); }
     }
 
-    async function selectSpecificMatch(id, n, p) {
+    async function selectSpecificMatch(id, n, p, dob) {
       document.getElementById('state-multiple').classList.add('hidden'); document.getElementById('state-loading').classList.remove('hidden');
-      try { const { data } = await supabaseClient.rpc('get_staff_card_by_id', { p_id: id, p_nom: n, p_prenom: p, p_lang: searchLang });
+      try { const { data } = await supabaseClient.rpc('get_staff_card_by_id', { p_id: id, p_nom: n, p_prenom: p, p_birth_date: dob, p_lang: searchLang });
         document.getElementById('state-loading').classList.add('hidden');
         if(data?.status==='SUCCESS') renderAssignmentCard(data.data); else document.getElementById('state-not-found').classList.remove('hidden');
       } catch(e) { document.getElementById('state-error').classList.remove('hidden'); }
@@ -697,7 +712,7 @@
 
       document.getElementById('card-center').textContent = r.center || '-';
       const offEl = document.getElementById('card-office-number');
-      if (r.office_number && r.office_number.trim() !== '') { offEl.textContent = r.office_number; offEl.className = 'text-5xl font-black tracking-wider'; } else { offEl.textContent = 'إدارة المركز'; offEl.className = 'text-2xl font-bold'; }
+      if (r.office_number) { offEl.textContent = r.office_number; offEl.className = 'text-5xl font-black tracking-wider'; } else { offEl.textContent = 'إدارة المركز'; offEl.className = 'text-2xl font-bold'; }
       
       document.getElementById('card-wilaya').textContent = r.wilaya || 'أدرار';
       document.getElementById('card-election-municipality').textContent = r.election_municipality || 'أدرار';
@@ -710,33 +725,18 @@
       document.getElementById('state-single-match').classList.remove('hidden');
     }
 
-    // =========================================================================
-    // دوال الطباعة واستخراج الـ PDF (اعتماداً على محرك المتصفح للحفاظ على اللغة العربية)
-    // =========================================================================
-    function printCardOnly() {
-      const name = currentAssignmentData ? (currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' + (currentAssignmentData.prenom_ar || currentAssignmentData.prenom) : 'مؤطر';
-      const originalTitle = document.title;
-      document.title = `طباعة_تعيين_${name}`;
-      window.print();
-      setTimeout(() => { document.title = originalTitle; }, 1000);
-    }
-
     function saveAsNativePDF() {
-      // إظهار رسالة توجيهية للمستخدم
       showToast('للحفاظ على دقة اللغة العربية، يرجى اختيار "Save as PDF / حفظ بتنسيق PDF" من نافذة الطباعة التي ستظهر الآن.', 'info');
       setTimeout(() => {
         const name = currentAssignmentData ? (currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' + (currentAssignmentData.prenom_ar || currentAssignmentData.prenom) : 'مؤطر';
         const originalTitle = document.title;
-        // تغيير عنوان الصفحة مؤقتاً ليصبح اسم الملف عند الحفظ كـ PDF
         document.title = `تعيين_${name.replace(/\s+/g, '_')}`;
         window.print();
         setTimeout(() => { document.title = originalTitle; }, 1500);
       }, 2000);
     }
 
-    // =========================================================================
-    // إدارة لوحة المشرف والإحصائيات (تم تصحيح الحسابات)
-    // =========================================================================
+    // إدارة لوحة المشرف والإحصائيات
     function switchAdminTab(t) {
       ['stats','records','import'].forEach(id => {
         document.getElementById(`admin-tab-${id}`).classList.add('hidden');
@@ -761,66 +761,37 @@
       } catch(e) { showToast('خطأ في جلب البيانات','error'); }
     }
 
+    // تصحيح دوال الإحصائيات (تنظيف المسافات ومعالجة القيم الفارغة)
     function computeStats() {
       document.getElementById('stat-total-staff').textContent = allStaffCache.length;
-      
-      const wilayas = new Set();
-      const muns = new Set();
-      const centers = new Set();
-      const offices = new Set();
-      const tasks = new Set();
-      let rev = 0;
-
+      const w=new Set(), m=new Set(), c=new Set(), o=new Set(), t=new Set(); let r=0;
       allStaffCache.forEach(s => {
-        if(s.wilaya && s.wilaya.trim() !== '') wilayas.add(s.wilaya.trim());
-        const mun = s.election_municipality || s.municipality;
-        if(mun && mun.trim() !== '') muns.add(mun.trim());
-        if(s.center && s.center.trim() !== '') centers.add(s.center.trim());
-        
-        // حساب المكاتب: لضمان التمييز، ندمج اسم المركز مع رقم المكتب، لأن المكاتب تتكرر أرقامها بين المراكز
-        if(s.office_number && s.office_number.trim() !== '') {
-            offices.add(`${s.center.trim()} - ${s.office_number.trim()}`);
-        }
-        
-        if(s.task && s.task.trim() !== '') tasks.add(s.task.trim());
-        if(s.needs_review) rev++;
+        if(s.wilaya && s.wilaya.trim()!=='') w.add(s.wilaya.trim());
+        const mun = s.election_municipality || s.municipality; if(mun && mun.trim()!=='') m.add(mun.trim());
+        if(s.center && s.center.trim()!=='') c.add(s.center.trim());
+        if(s.office_number && s.office_number.trim()!=='') o.add(s.center.trim() + s.office_number.trim());
+        if(s.task && s.task.trim()!=='') t.add(s.task.trim());
+        if(s.needs_review) r++;
       });
+      document.getElementById('stat-total-wilayas').textContent = w.size || 1;
+      document.getElementById('stat-total-municipalities').textContent = m.size || 1;
+      document.getElementById('stat-total-centers').textContent = c.size;
+      document.getElementById('stat-total-offices').textContent = o.size;
+      document.getElementById('stat-total-tasks').textContent = t.size;
+      document.getElementById('stat-complete-records').textContent = allStaffCache.length - r;
+      document.getElementById('stat-review-records').textContent = r;
 
-      document.getElementById('stat-total-wilayas').textContent = wilayas.size > 0 ? wilayas.size : 1; 
-      document.getElementById('stat-total-municipalities').textContent = muns.size > 0 ? muns.size : 1;
-      document.getElementById('stat-total-centers').textContent = centers.size;
-      document.getElementById('stat-total-offices').textContent = offices.size;
-      document.getElementById('stat-total-tasks').textContent = tasks.size;
-      document.getElementById('stat-complete-records').textContent = allStaffCache.length - rev;
-      document.getElementById('stat-review-records').textContent = rev;
-
-      renderCharts(tasks, centers);
+      renderCharts(t, c);
     }
 
-    function renderCharts(tasksSet, centersSet) {
-      const tc = {}; const cc = {};
-      allStaffCache.forEach(s => { 
-        if(s.task) tc[s.task] = (tc[s.task] || 0) + 1; 
-        if(s.center) cc[s.center] = (cc[s.center] || 0) + 1; 
-      });
-      
+    function renderCharts(tasks, centers) {
+      const tc={}, cc={};
+      allStaffCache.forEach(s => { if(s.task) tc[s.task]=(tc[s.task]||0)+1; if(s.center) cc[s.center]=(cc[s.center]||0)+1; });
       const tMax = Math.max(...Object.values(tc), 1);
-      const tkHtml = Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(e=>`
-        <div>
-          <div class="flex justify-between text-xs font-bold text-slate-700 mb-1"><span>${e[0]}</span><span>${e[1]}</span></div>
-          <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width:${(e[1]/tMax)*100}%"></div></div>
-        </div>
-      `).join('');
-      document.getElementById('chart-tasks').innerHTML = tkHtml || 'لا توجد بيانات';
+      document.getElementById('chart-tasks').innerHTML = Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(e=>`<div><div class="flex justify-between text-xs font-bold text-slate-700 mb-1"><span>${e[0]}</span><span>${e[1]}</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width:${(e[1]/tMax)*100}%"></div></div></div>`).join('');
       
       const cMax = Math.max(...Object.values(cc), 1);
-      const ckHtml = Object.entries(cc).sort((a,b)=>b[1]-a[1]).map(e=>`
-        <div>
-          <div class="flex justify-between text-xs font-bold text-slate-700 mb-1"><span>${e[0]}</span><span>${e[1]}</span></div>
-          <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-indigo-600 h-2 rounded-full" style="width:${(e[1]/cMax)*100}%"></div></div>
-        </div>
-      `).join('');
-      document.getElementById('chart-centers').innerHTML = ckHtml || 'لا توجد بيانات';
+      document.getElementById('chart-centers').innerHTML = Object.entries(cc).sort((a,b)=>b[1]-a[1]).map(e=>`<div><div class="flex justify-between text-xs font-bold text-slate-700 mb-1"><span>${e[0]}</span><span>${e[1]}</span></div><div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-indigo-600 h-2 rounded-full" style="width:${(e[1]/cMax)*100}%"></div></div></div>`).join('');
     }
 
     function populateCenters() {
@@ -840,19 +811,11 @@
         return true;
       });
       document.getElementById('admin-records-tbody').innerHTML = res.slice(0,50).map(r=>`
-        <tr class="border-b hover:bg-slate-50 transition">
-          <td class="p-3">${r.nom_ar||''} ${r.prenom_ar||''}</td>
-          <td class="p-3 font-bold" dir="ltr">${r.nom} ${r.prenom}</td>
-          <td class="p-3 text-xs text-slate-600">${r.center}</td>
-          <td class="p-3 text-center font-semibold text-blue-800">${r.office_number||'-'}</td>
-          <td class="p-3 text-xs font-bold text-emerald-700">${r.task}</td>
-        </tr>
+        <tr class="border-b hover:bg-slate-50 transition"><td class="p-3">${r.nom_ar||''} ${r.prenom_ar||''}</td><td class="p-3 font-bold" dir="ltr">${r.nom} ${r.prenom}</td><td class="p-3 text-xs text-slate-600">${r.center}</td><td class="p-3 text-center font-semibold text-blue-800">${r.office_number||'-'}</td><td class="p-3 text-xs font-bold text-emerald-700">${r.task}</td></tr>
       `).join('');
     }
 
-    // =========================================================================
-    // محرك الاستيراد من Word
-    // =========================================================================
+    // محرك الاستيراد السريع
     async function handleFilesSelected(e) {
       const files = Array.from(e.target.files); if(!files.length) return;
       parsedImportBuffer = [];
@@ -864,8 +827,8 @@
           doc.body.querySelectorAll('p, table').forEach(el => {
             if(el.tagName==='P') {
               const txt = el.textContent;
-              if(txt.match(/المركز\s*[:：]\s*(.+?)(?=\s+البلدية|$)/)) cC = txt.match(/المركز\s*[:：]\s*(.+?)(?=\s+البلدية|$)/)[1].trim();
-              if(txt.match(/رقم المكتب\s*[:：]\s*([0-9A-Za-z]+)/)) cO = txt.match(/رقم المكتب\s*[:：]\s*([0-9A-Za-z]+)/)[1].trim();
+              if(txt.match(/المركز\s*:\s*(.+?)(?=\s+البلدية|$)/)) cC = txt.match(/المركز\s*:\s*(.+?)(?=\s+البلدية|$)/)[1].trim();
+              if(txt.match(/رقم المكتب\s*:\s*([0-9A-Za-z]+)/)) cO = txt.match(/رقم المكتب\s*:\s*([0-9A-Za-z]+)/)[1].trim();
               if(txt.includes('مؤطري مركز')) cO=null;
             } else if (el.tagName==='TABLE') {
                const rows = Array.from(el.querySelectorAll('tr')); let hIdx=-1, cols={};
@@ -883,7 +846,7 @@
                  for(let i=hIdx+1; i<rows.length; i++) {
                    const cells = Array.from(rows[i].querySelectorAll('td,th')).map(c=>c.textContent.trim());
                    if(cells.length<4 || (!cells[cols.frN] && !cells[cols.frP])) continue;
-                   parsedImportBuffer.push({ center: cC||f.name.replace('.docx',''), office_number: cO, nom_ar: cells[cols.arN]||'', prenom_ar: cells[cols.arP]||'', nom: cells[cols.frN], prenom: cells[cols.frP], task: cells[cols.task]||'مؤطر', wilaya: 'أدرار' });
+                   parsedImportBuffer.push({ center: cC||f.name.replace('.docx',''), office_number: cO, nom_ar: cells[cols.arN]||'', prenom_ar: cells[cols.arP]||'', nom: cells[cols.frN], prenom: cells[cols.frP], task: cells[cols.task]||'مؤطر', wilaya: 'أدرار', birth_date: cells[cols.bd]||null });
                  }
                }
             }
