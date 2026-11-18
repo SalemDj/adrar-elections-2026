@@ -44,71 +44,58 @@
     }
 
     /* ========================================================= */
-    /* تنسيقات استخراج PDF الاحترافية - حماية من الصفحة البيضاء */
+    /* تنسيقات الطباعة الاحترافية - نصف ورقة A4 (A5 أفقي) */
     /* ========================================================= */
     @media print {
-      @page {
-        size: A4 landscape;
-        margin: 0; /* إلغاء هوامش المتصفح الافتراضية للتحكم الكامل */
-      }
-      
+      @page { size: A5 landscape; margin: 7mm; }
       html, body {
-        width: 100vw;
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-        background-color: #ffffff !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        overflow: hidden !important; /* منع أي صفحات إضافية */
+        width: auto !important; height: auto !important; margin: 0 !important;
+        padding: 0 !important; background: #fff !important; overflow: visible !important;
+        -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
       }
-
-      /* 1. إخفاء جميع العناصر الجانبية بالقوة المطلقة */
-      header, footer, #toast-container, form, .bg-gradient-to-l, 
-      #state-ready, #state-loading, #state-incomplete, #state-not-found, 
-      #state-error, #state-multiple, .no-print {
-        display: none !important;
+      body { display: block !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; }
+      header, footer, #toast-container, form, .no-print,
+      #state-ready, #state-loading, #state-incomplete, #state-not-found,
+      #state-error, #state-multiple { display: none !important; }
+      main, #public-view, #public-view > div, #search-results-area,
+      #state-single-match {
+        display: block !important; position: static !important; width: auto !important;
+        max-width: none !important; height: auto !important; margin: 0 !important;
+        padding: 0 !important; overflow: visible !important; background: #fff !important;
+        border: 0 !important; box-shadow: none !important;
       }
-
-      /* 2. تحرير البطاقة من جميع الحاويات (Flexbox/Grid) التي تسبب اختفاءها */
-      main, #public-view, #public-view > div, #search-results-area, #state-single-match {
-        display: block !important;
-        position: static !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        max-width: none !important;
-        height: auto !important;
-        overflow: visible !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-
-      /* 3. إخفاء الشريط العلوي الذي يحتوي على الأزرار (أيقونة الصح والزر) */
-      #state-single-match > div:first-child {
-        display: none !important;
-      }
-
-      /* 4. تصميم البطاقة الداخلي ليأخذ مقاس ورقة A4 بالعرض ويتوسط الشاشة */
+      #state-single-match > div:first-child { display: none !important; }
       #printable-assignment-card {
-        width: 100% !important;
-        height: 100vh !important; /* تغطية الشاشة بالكامل */
-        margin: 0 !important;
-        padding: 1.5cm 2cm !important; /* هوامش داخلية أنيقة */
-        border: 2px solid #1e3a8a !important; /* إطار أزرق رسمي */
-        border-radius: 16px !important;
-        box-shadow: none !important;
-        page-break-inside: avoid !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: space-between !important; /* توزيع متناسق للمسافات */
+        display: flex !important; flex-direction: column !important; justify-content: space-between !important;
+        width: 100% !important; min-height: 125mm !important; height: auto !important;
+        margin: 0 !important; padding: 0 !important; overflow: hidden !important;
+        border: 1.2px solid #1e3a8a !important; border-radius: 8px !important;
+        box-shadow: none !important; page-break-inside: avoid !important;
+        direction: rtl !important; text-align: right !important;
       }
-
-      /* تكبير النصوص قليلاً لتتناسب مع حجم الورقة عند الطباعة */
-      #printable-assignment-card h2 { font-size: 2.75rem !important; }
-      #card-office-number { font-size: 4rem !important; }
-      #card-center { font-size: 2.25rem !important; }
+      #printable-assignment-card > div:first-child > div:first-child {
+        padding: 5mm 7mm !important;
+      }
+      #printable-assignment-card > div:first-child > div:nth-child(2) {
+        padding: 5mm 7mm !important; gap: 3mm !important;
+      }
+      #printable-assignment-card h2 { font-size: 22pt !important; line-height: 1.35 !important; }
+      #card-center { font-size: 17pt !important; line-height: 1.4 !important; }
+      #card-office-number { font-size: 29pt !important; }
+      #printable-assignment-card .grid { gap: 3mm !important; }
+      #printable-assignment-card .p-6, #printable-assignment-card .p-5,
+      #printable-assignment-card .sm\:p-8 { padding: 3mm !important; }
+      #printable-assignment-card .mt-8 { margin-top: 4mm !important; }
+      #printable-assignment-card .pt-6 { padding-top: 3mm !important; }
+      #printable-assignment-card .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 3mm !important; }
+      #printable-assignment-card .text-xl { font-size: 12pt !important; }
+      #printable-assignment-card .text-lg { font-size: 11pt !important; }
+      #printable-assignment-card .text-sm { font-size: 9pt !important; }
+      #printable-assignment-card .text-xs { font-size: 8pt !important; }
+      #printable-assignment-card > div:last-child {
+        padding: 3mm 6mm !important; font-size: 8pt !important;
+      }
+      #printable-assignment-card * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
 
     /* شريط تمرير أنيق للجداول */
@@ -361,19 +348,6 @@
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <button onclick="saveAsNativePDF()" class="flex-1 sm:flex-initial px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer">
                 <i data-lucide="file-text" class="w-5 h-5"></i><span>حفظ البطاقة كـ PDF</span>
-              </button>
-            </div>
-          </div>
-
-          <div id="printable-assignment-card" class="bg-white rounded-2xl border-2 border-blue-900/20 shadow-lg overflow-hidden flex flex-col">
-              </button>
-              
-              <button
-                onclick="saveAsNativePDF()"
-                class="flex-1 sm:flex-initial px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i data-lucide="file-text" class="w-4 h-4"></i>
-                <span>حفظ PDF</span>
               </button>
             </div>
           </div>
@@ -726,14 +700,70 @@
     }
 
     function saveAsNativePDF() {
-      showToast('للحفاظ على دقة اللغة العربية، يرجى اختيار "Save as PDF / حفظ بتنسيق PDF" من نافذة الطباعة التي ستظهر الآن.', 'info');
-      setTimeout(() => {
-        const name = currentAssignmentData ? (currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' + (currentAssignmentData.prenom_ar || currentAssignmentData.prenom) : 'مؤطر';
-        const originalTitle = document.title;
-        document.title = `تعيين_${name.replace(/\s+/g, '_')}`;
-        window.print();
-        setTimeout(() => { document.title = originalTitle; }, 1500);
-      }, 2000);
+      // فتح نافذة مستقلة للبطاقة فقط يمنع طباعة عناصر التطبيق أو تكرار البطاقة.
+      // استخدام محرك الطباعة الأصلي للمتصفح يحافظ على تشكيل الحروف العربية واتجاه RTL.
+      const cards = document.querySelectorAll('#state-single-match #printable-assignment-card');
+      const card = cards[cards.length - 1];
+      if (!card || !currentAssignmentData) {
+        showToast('يرجى استخراج بطاقة التعيين أولاً.', 'warning');
+        return;
+      }
+
+      const printWindow = window.open('', '_blank', 'width=1000,height=700');
+      if (!printWindow) {
+        showToast('يرجى السماح بالنوافذ المنبثقة لإتمام الطباعة وحفظ PDF.', 'warning');
+        return;
+      }
+
+      const rawName = `${currentAssignmentData.nom_ar || currentAssignmentData.nom || ''}_${currentAssignmentData.prenom_ar || currentAssignmentData.prenom || ''}`;
+      const safeName = rawName.replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_') || 'مؤطر';
+      const cardHTML = card.outerHTML;
+      printWindow.document.open();
+      printWindow.document.write(`<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بطاقة التعيين_${safeName}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"><\/script>
+<style>
+  @page { size: A5 landscape; margin: 7mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { direction: rtl; text-align: right; font-family: 'Cairo','Tajawal',sans-serif; color: #0f172a; }
+  #printable-assignment-card { width: 100%; min-height: 125mm; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; border: 1.2px solid #1e3a8a; border-radius: 8px; box-shadow: none; direction: rtl; text-align: right; }
+  #printable-assignment-card > div:first-child > div:first-child { padding: 5mm 7mm; }
+  #printable-assignment-card > div:first-child > div:nth-child(2) { padding: 5mm 7mm; }
+  #printable-assignment-card h2 { font-size: 22pt; line-height: 1.35; }
+  #card-center { font-size: 17pt; line-height: 1.4; }
+  #card-office-number { font-size: 29pt; }
+  #printable-assignment-card .grid { gap: 3mm; }
+  #printable-assignment-card .p-6, #printable-assignment-card .p-5 { padding: 3mm; }
+  #printable-assignment-card .mt-8 { margin-top: 4mm; }
+  #printable-assignment-card .pt-6 { padding-top: 3mm; }
+  #printable-assignment-card .text-xl { font-size: 12pt; }
+  #printable-assignment-card .text-lg { font-size: 11pt; }
+  #printable-assignment-card .text-sm { font-size: 9pt; }
+  #printable-assignment-card .text-xs { font-size: 8pt; }
+  #printable-assignment-card > div:last-child { padding: 3mm 6mm; font-size: 8pt; }
+  #printable-assignment-card * { font-family: 'Cairo','Tajawal',sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  @media print { html, body { width: auto; height: auto; } #printable-assignment-card { page-break-inside: avoid; } }
+</style>
+</head>
+<body>${cardHTML}
+<script>
+  (async function () {
+    try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+    // مهلة قصيرة لإكمال تطبيق تنسيقات Tailwind قبل فتح نافذة الطباعة.
+    setTimeout(function () { window.focus(); window.print(); }, 500);
+  })();
+<\/script>
+</body>
+</html>`);
+      printWindow.document.close();
     }
 
     // إدارة لوحة المشرف والإحصائيات
