@@ -44,58 +44,165 @@
     }
 
     /* ========================================================= */
-    /* تنسيقات الطباعة الاحترافية - نصف ورقة A4 (A5 أفقي) */
+    /* طباعة بطاقة التعيين وحفظها بصيغة PDF - نصف صفحة A4 */
     /* ========================================================= */
     @media print {
-      @page { size: A5 landscape; margin: 7mm; }
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+
       html, body {
-        width: auto !important; height: auto !important; margin: 0 !important;
-        padding: 0 !important; background: #fff !important; overflow: visible !important;
-        -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+        width: auto !important;
+        min-width: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        color: #0f172a !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
+
       body { display: block !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; }
-      header, footer, #toast-container, form, .no-print,
-      #state-ready, #state-loading, #state-incomplete, #state-not-found,
-      #state-error, #state-multiple { display: none !important; }
-      main, #public-view, #public-view > div, #search-results-area,
+
+      /* إظهار مسار البطاقة فقط وإخفاء بقية التطبيق */
+      body > * { display: none !important; }
+      body > main#public-view {
+        display: block !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      #public-view > div,
+      #search-results-area,
       #state-single-match {
-        display: block !important; position: static !important; width: auto !important;
-        max-width: none !important; height: auto !important; margin: 0 !important;
-        padding: 0 !important; overflow: visible !important; background: #fff !important;
-        border: 0 !important; box-shadow: none !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
       }
-      #state-single-match > div:first-child { display: none !important; }
+      #state-single-match > :not(#printable-assignment-card),
+      .no-print, header, footer, #toast-container,
+      #state-ready, #state-loading, #state-incomplete, #state-not-found,
+      #state-error, #state-multiple, #admin-login-view, #admin-dashboard-view {
+        display: none !important;
+      }
+
+      /* البطاقة مصممة لتشغل النصف العلوي تقريباً من ورقة A4 */
       #printable-assignment-card {
-        display: flex !important; flex-direction: column !important; justify-content: space-between !important;
-        width: 100% !important; min-height: 125mm !important; height: auto !important;
-        margin: 0 !important; padding: 0 !important; overflow: hidden !important;
-        border: 1.2px solid #1e3a8a !important; border-radius: 8px !important;
-        box-shadow: none !important; page-break-inside: avoid !important;
-        direction: rtl !important; text-align: right !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        direction: rtl !important;
+        text-align: right !important;
+        unicode-bidi: isolate !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 132mm !important;
+        min-height: 132mm !important;
+        max-height: 132mm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border: 1.2mm solid #1e3a8a !important;
+        border-radius: 4mm !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        font-family: 'Cairo', 'Tajawal', sans-serif !important;
       }
+
+      #printable-assignment-card > div:first-child { flex: 1 1 auto !important; min-height: 0 !important; }
+      #printable-assignment-card .bg-gradient-to-l,
+      #printable-assignment-card .bg-gradient-to-br { background: #f1f5f9 !important; }
+      #printable-assignment-card .bg-blue-900,
+      #printable-assignment-card .bg-gradient-to-br.from-blue-900 { background: #1e3a8a !important; color: #fff !important; }
+
       #printable-assignment-card > div:first-child > div:first-child {
-        padding: 5mm 7mm !important;
+        padding: 4mm 6mm 3mm !important;
       }
+      #printable-assignment-card #card-arabic-name-block { margin-top: 1mm !important; }
+      #printable-assignment-card #card-arabic-name-block > p { font-size: 9pt !important; margin-bottom: 0 !important; }
+      #printable-assignment-card #card-full-name-ar {
+        font-size: 22pt !important;
+        line-height: 1.35 !important;
+        padding: 1mm 0 !important;
+        margin: 0 !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        letter-spacing: 0 !important;
+      }
+      #printable-assignment-card #card-missing-ar-warning { padding: 2mm !important; margin-top: 2mm !important; }
+      #printable-assignment-card #card-birth-info-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 3mm !important;
+        margin-top: 3mm !important;
+        padding-top: 3mm !important;
+      }
+      #printable-assignment-card #card-birth-info-grid > div { gap: 2mm !important; }
+      #printable-assignment-card #card-birth-info-grid > div > div:first-child { width: 8mm !important; height: 8mm !important; }
+      #printable-assignment-card #card-birth-info-grid span:last-child { font-size: 10pt !important; }
+
       #printable-assignment-card > div:first-child > div:nth-child(2) {
-        padding: 5mm 7mm !important; gap: 3mm !important;
+        padding: 4mm 6mm !important;
+        gap: 3mm !important;
       }
-      #printable-assignment-card h2 { font-size: 22pt !important; line-height: 1.35 !important; }
-      #card-center { font-size: 17pt !important; line-height: 1.4 !important; }
-      #card-office-number { font-size: 29pt !important; }
-      #printable-assignment-card .grid { gap: 3mm !important; }
-      #printable-assignment-card .p-6, #printable-assignment-card .p-5,
-      #printable-assignment-card .sm\:p-8 { padding: 3mm !important; }
-      #printable-assignment-card .mt-8 { margin-top: 4mm !important; }
-      #printable-assignment-card .pt-6 { padding-top: 3mm !important; }
-      #printable-assignment-card .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 3mm !important; }
-      #printable-assignment-card .text-xl { font-size: 12pt !important; }
-      #printable-assignment-card .text-lg { font-size: 11pt !important; }
-      #printable-assignment-card .text-sm { font-size: 9pt !important; }
-      #printable-assignment-card .text-xs { font-size: 8pt !important; }
+      #printable-assignment-card > div:first-child > div:nth-child(2) > div:first-child {
+        font-size: 12pt !important;
+        padding-bottom: 2mm !important;
+      }
+      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(2) {
+        display: grid !important;
+        grid-template-columns: 2fr 1fr !important;
+        gap: 3mm !important;
+      }
+      #printable-assignment-card #card-center,
+      #printable-assignment-card #card-office-number {
+        font-size: 17pt !important;
+        line-height: 1.35 !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+      }
+      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(2) > div { padding: 3mm !important; min-height: 22mm !important; }
+      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(3) {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 3mm !important;
+        padding-top: 2mm !important;
+      }
+      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(3) > div { padding: 2.5mm !important; }
+      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(3) span { font-size: 8pt !important; margin-bottom: 1mm !important; }
+      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(3) p { font-size: 11pt !important; line-height: 1.35 !important; overflow-wrap: anywhere !important; }
+
       #printable-assignment-card > div:last-child {
-        padding: 3mm 6mm !important; font-size: 8pt !important;
+        flex: 0 0 auto !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 2mm !important;
+        padding: 2.5mm 6mm !important;
+        font-size: 7.5pt !important;
+        line-height: 1.4 !important;
+        background: #f1f5f9 !important;
       }
-      #printable-assignment-card * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      #printable-assignment-card * {
+        font-family: 'Cairo', 'Tajawal', sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      #printable-assignment-card [dir="ltr"] { direction: ltr !important; unicode-bidi: isolate !important; }
     }
 
     /* شريط تمرير أنيق للجداول */
@@ -164,7 +271,7 @@
             اعرف مركز ومكتب تعيينك
           </h2>
           <p class="text-blue-100 text-sm sm:text-base mt-2 leading-relaxed">
-            أدخل اسمك ولقبك وتاريخ ميلادك للاطلاع على معلومات تعيينك بدقة وبكل سرية.
+            أدخل اسمك ولقبك باللغة اللاتينية أو العربية كما وردا في قائمة المؤطرين للاطلاع على معلومات تعيينك.
           </p>
         </div>
 
@@ -177,7 +284,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <!-- الحقل الأول: اللقب -->
             <div>
               <label id="label-search-nom" for="search-nom" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
@@ -217,21 +324,6 @@
                 <div class="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400">
                   <i data-lucide="user-check" class="w-5 h-5"></i>
                 </div>
-              </div>
-            </div>
-
-            <!-- الحقل الثالث: تاريخ الميلاد -->
-            <div>
-              <label for="search-dob" class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
-                <span>تاريخ الميلاد <span class="text-red-500">*</span></span>
-              </label>
-              <div class="relative">
-                <input
-                  type="date"
-                  id="search-dob"
-                  required
-                  class="w-full px-4 py-3.5 font-semibold text-base sm:text-lg bg-slate-50 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition text-slate-700 text-center"
-                />
               </div>
             </div>
           </div>
@@ -285,7 +377,7 @@
           </div>
           <h3 class="text-base font-bold text-slate-800">في انتظار إدخال بيانات الاستعلام</h3>
           <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
-            تأكد من كتابة اللقب والاسم وتاريخ الميلاد كما وردت في القوائم الرسمية.
+            تأكد من كتابة اللقب والاسم كما وردا في القوائم الرسمية.
           </p>
         </div>
 
@@ -300,7 +392,7 @@
           </div>
           <div>
             <h3 class="text-base font-bold text-amber-950">بيانات البحث غير مكتملة</h3>
-            <p class="text-sm text-amber-800 mt-1">يرجى إدخال اللقب، الاسم، وتاريخ الميلاد معاً لإجراء عملية المطابقة.</p>
+            <p class="text-sm text-amber-800 mt-1">يرجى إدخال اللقب والاسم معاً لإجراء عملية المطابقة.</p>
           </div>
         </div>
 
@@ -330,7 +422,7 @@
               <i data-lucide="users" class="w-5 h-5"></i>
             </div>
             <div>
-              <h3 class="text-base font-extrabold text-blue-950">يوجد أكثر من سجل مطابق (نفس الاسم وتاريخ الميلاد)</h3>
+              <h3 class="text-base font-extrabold text-blue-950">يوجد أكثر من سجل مطابق لهذا الاسم واللقب</h3>
               <p class="text-xs text-blue-800">يرجى اختيار السجل الخاص بك:</p>
             </div>
           </div>
@@ -631,7 +723,7 @@
     }
 
     function resetPublicSearch() {
-      document.getElementById('search-nom').value=''; document.getElementById('search-prenom').value=''; document.getElementById('search-dob').value='';
+      document.getElementById('search-nom').value=''; document.getElementById('search-prenom').value='';
       ['state-loading','state-incomplete','state-not-found','state-error','state-multiple','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden'));
       document.getElementById('state-ready').classList.remove('hidden');
     }
@@ -646,9 +738,8 @@
       e.preventDefault();
       const rn = document.getElementById('search-nom').value.trim().replace(/\s+/g,' ');
       const rp = document.getElementById('search-prenom').value.trim().replace(/\s+/g,' ');
-      const dob = document.getElementById('search-dob').value;
 
-      if(!rn || !rp || !dob) { ['state-ready','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('state-incomplete').classList.remove('hidden'); return; }
+      if(!rn || !rp) { ['state-ready','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('state-incomplete').classList.remove('hidden'); return; }
       if(captchaRequired) { if(parseInt(document.getElementById('captcha-answer').value,10)!==captchaExpectedResult) { showToast('خطأ في التحقق','warning'); genCap(); return; } captchaRequired=false; document.getElementById('captcha-box').classList.add('hidden'); searchAttempts=[]; }
       
       const now = Date.now(); searchAttempts=searchAttempts.filter(t=>now-t<60000); searchAttempts.push(now);
@@ -658,21 +749,21 @@
       document.getElementById('state-loading').classList.remove('hidden');
 
       try {
-        const { data, error } = await supabaseClient.rpc('search_staff_public', { p_nom: rn, p_prenom: rp, p_birth_date: dob, p_lang: searchLang });
+        const { data, error } = await supabaseClient.rpc('search_staff_public', { p_nom: rn, p_prenom: rp, p_lang: searchLang });
         if(error) throw error;
         document.getElementById('state-loading').classList.add('hidden');
         if(!data || data.status==='NOT_FOUND' || data.status==='INVALID_INPUT') { document.getElementById('state-not-found').classList.remove('hidden'); }
         else if(data.status==='SINGLE_MATCH') { renderAssignmentCard(data.data); }
         else if(data.status==='MULTIPLE_MATCHES') {
-          document.getElementById('multiple-matches-list').innerHTML = data.matches.map(m=>`<div class="p-3 border-b flex justify-between"><div><span class="font-bold">${m.nom} ${m.prenom}</span><div class="text-xs text-slate-500">${m.center} | ${m.task}</div></div><button onclick="selectSpecificMatch('${m.id}','${rn}','${rp}','${dob}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">اختيار</button></div>`).join('');
+          document.getElementById('multiple-matches-list').innerHTML = data.matches.map(m=>`<div class="p-3 border-b flex justify-between"><div><span class="font-bold">${m.nom} ${m.prenom}</span><div class="text-xs text-slate-500">${m.center} | ${m.task}</div></div><button onclick="selectSpecificMatch('${m.id}','${rn}','${rp}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">اختيار</button></div>`).join('');
           document.getElementById('state-multiple').classList.remove('hidden');
         }
       } catch(err) { document.getElementById('state-loading').classList.add('hidden'); document.getElementById('state-error').classList.remove('hidden'); }
     }
 
-    async function selectSpecificMatch(id, n, p, dob) {
+    async function selectSpecificMatch(id, n, p) {
       document.getElementById('state-multiple').classList.add('hidden'); document.getElementById('state-loading').classList.remove('hidden');
-      try { const { data } = await supabaseClient.rpc('get_staff_card_by_id', { p_id: id, p_nom: n, p_prenom: p, p_birth_date: dob, p_lang: searchLang });
+      try { const { data } = await supabaseClient.rpc('get_staff_card_by_id', { p_id: id, p_nom: n, p_prenom: p, p_lang: searchLang });
         document.getElementById('state-loading').classList.add('hidden');
         if(data?.status==='SUCCESS') renderAssignmentCard(data.data); else document.getElementById('state-not-found').classList.remove('hidden');
       } catch(e) { document.getElementById('state-error').classList.remove('hidden'); }
@@ -699,71 +790,39 @@
       document.getElementById('state-single-match').classList.remove('hidden');
     }
 
-    function saveAsNativePDF() {
-      // فتح نافذة مستقلة للبطاقة فقط يمنع طباعة عناصر التطبيق أو تكرار البطاقة.
-      // استخدام محرك الطباعة الأصلي للمتصفح يحافظ على تشكيل الحروف العربية واتجاه RTL.
-      const cards = document.querySelectorAll('#state-single-match #printable-assignment-card');
-      const card = cards[cards.length - 1];
-      if (!card || !currentAssignmentData) {
-        showToast('يرجى استخراج بطاقة التعيين أولاً.', 'warning');
+    async function saveAsNativePDF() {
+      if (!currentAssignmentData) {
+        showToast('لا توجد بطاقة تعيين جاهزة للطباعة.', 'warning');
         return;
       }
 
-      const printWindow = window.open('', '_blank', 'width=1000,height=700');
-      if (!printWindow) {
-        showToast('يرجى السماح بالنوافذ المنبثقة لإتمام الطباعة وحفظ PDF.', 'warning');
+      const card = document.getElementById('printable-assignment-card');
+      if (!card) {
+        showToast('تعذر العثور على بطاقة التعيين.', 'warning');
         return;
       }
 
-      const rawName = `${currentAssignmentData.nom_ar || currentAssignmentData.nom || ''}_${currentAssignmentData.prenom_ar || currentAssignmentData.prenom || ''}`;
-      const safeName = rawName.replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_') || 'مؤطر';
-      const cardHTML = card.outerHTML;
-      printWindow.document.open();
-      printWindow.document.write(`<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>بطاقة التعيين_${safeName}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"><\/script>
-<style>
-  @page { size: A5 landscape; margin: 7mm; }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: #fff; }
-  body { direction: rtl; text-align: right; font-family: 'Cairo','Tajawal',sans-serif; color: #0f172a; }
-  #printable-assignment-card { width: 100%; min-height: 125mm; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; border: 1.2px solid #1e3a8a; border-radius: 8px; box-shadow: none; direction: rtl; text-align: right; }
-  #printable-assignment-card > div:first-child > div:first-child { padding: 5mm 7mm; }
-  #printable-assignment-card > div:first-child > div:nth-child(2) { padding: 5mm 7mm; }
-  #printable-assignment-card h2 { font-size: 22pt; line-height: 1.35; }
-  #card-center { font-size: 17pt; line-height: 1.4; }
-  #card-office-number { font-size: 29pt; }
-  #printable-assignment-card .grid { gap: 3mm; }
-  #printable-assignment-card .p-6, #printable-assignment-card .p-5 { padding: 3mm; }
-  #printable-assignment-card .mt-8 { margin-top: 4mm; }
-  #printable-assignment-card .pt-6 { padding-top: 3mm; }
-  #printable-assignment-card .text-xl { font-size: 12pt; }
-  #printable-assignment-card .text-lg { font-size: 11pt; }
-  #printable-assignment-card .text-sm { font-size: 9pt; }
-  #printable-assignment-card .text-xs { font-size: 8pt; }
-  #printable-assignment-card > div:last-child { padding: 3mm 6mm; font-size: 8pt; }
-  #printable-assignment-card * { font-family: 'Cairo','Tajawal',sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  @media print { html, body { width: auto; height: auto; } #printable-assignment-card { page-break-inside: avoid; } }
-</style>
-</head>
-<body>${cardHTML}
-<script>
-  (async function () {
-    try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
-    // مهلة قصيرة لإكمال تطبيق تنسيقات Tailwind قبل فتح نافذة الطباعة.
-    setTimeout(function () { window.focus(); window.print(); }, 500);
-  })();
-<\/script>
-</body>
-</html>`);
-      printWindow.document.close();
+      const cleanFilePart = value => String(value || '')
+        .trim()
+        .replace(/[\\/:*?"<>|]+/g, '-')
+        .replace(/\s+/g, '_');
+      const name = cleanFilePart(currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' +
+                   cleanFilePart(currentAssignmentData.prenom_ar || currentAssignmentData.prenom);
+      const originalTitle = document.title;
+      const restoreTitle = () => { document.title = originalTitle; };
+
+      try {
+        /* انتظر تحميل الخط العربي قبل فتح نافذة الطباعة لضمان اتصال الحروف */
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        document.title = `بطاقة_التعيين_${name || 'مؤطر'}`;
+        window.addEventListener('afterprint', restoreTitle, { once: true });
+        window.print();
+        /* احتياط للمتصفحات التي لا تطلق afterprint */
+        setTimeout(restoreTitle, 10000);
+      } catch (error) {
+        restoreTitle();
+        showToast('تعذر فتح نافذة الطباعة. يرجى المحاولة مرة أخرى.', 'warning');
+      }
     }
 
     // إدارة لوحة المشرف والإحصائيات
