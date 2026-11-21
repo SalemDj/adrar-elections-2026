@@ -44,165 +44,71 @@
     }
 
     /* ========================================================= */
-    /* طباعة بطاقة التعيين وحفظها بصيغة PDF - نصف صفحة A4 */
+    /* تنسيقات استخراج PDF الاحترافية - حماية من الصفحة البيضاء */
     /* ========================================================= */
     @media print {
       @page {
-        size: A4 portrait;
-        margin: 8mm;
+        size: A4 landscape;
+        margin: 0; /* إلغاء هوامش المتصفح الافتراضية للتحكم الكامل */
       }
-
+      
       html, body {
-        width: auto !important;
-        min-width: 0 !important;
-        height: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #fff !important;
-        color: #0f172a !important;
-        overflow: visible !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        overflow: hidden !important; /* منع أي صفحات إضافية */
       }
 
-      body { display: block !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; }
-
-      /* إظهار مسار البطاقة فقط وإخفاء بقية التطبيق */
-      body > * { display: none !important; }
-      body > main#public-view {
-        display: block !important;
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      #public-view > div,
-      #search-results-area,
-      #state-single-match {
-        display: block !important;
-        width: 100% !important;
-        max-width: none !important;
-        height: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: visible !important;
-        background: transparent !important;
-        border: 0 !important;
-        box-shadow: none !important;
-      }
-      #state-single-match > :not(#printable-assignment-card),
-      .no-print, header, footer, #toast-container,
-      #state-ready, #state-loading, #state-incomplete, #state-not-found,
-      #state-error, #state-multiple, #admin-login-view, #admin-dashboard-view {
+      /* 1. إخفاء جميع العناصر الجانبية بالقوة المطلقة */
+      header, footer, #toast-container, form, .bg-gradient-to-l, 
+      #state-ready, #state-loading, #state-incomplete, #state-not-found, 
+      #state-error, #state-multiple, .no-print {
         display: none !important;
       }
 
-      /* البطاقة مصممة لتشغل النصف العلوي تقريباً من ورقة A4 */
-      #printable-assignment-card {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: space-between !important;
-        direction: rtl !important;
-        text-align: right !important;
-        unicode-bidi: isolate !important;
-        box-sizing: border-box !important;
-        width: 100% !important;
-        height: 132mm !important;
-        min-height: 132mm !important;
-        max-height: 132mm !important;
-        margin: 0 auto !important;
+      /* 2. تحرير البطاقة من جميع الحاويات (Flexbox/Grid) التي تسبب اختفاءها */
+      main, #public-view, #public-view > div, #search-results-area, #state-single-match {
+        display: block !important;
+        position: static !important;
+        margin: 0 !important;
         padding: 0 !important;
-        overflow: hidden !important;
-        border: 1.2mm solid #1e3a8a !important;
-        border-radius: 4mm !important;
-        background: #fff !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      /* 3. إخفاء الشريط العلوي الذي يحتوي على الأزرار (أيقونة الصح والزر) */
+      #state-single-match > div:first-child {
+        display: none !important;
+      }
+
+      /* 4. تصميم البطاقة الداخلي ليأخذ مقاس ورقة A4 بالعرض ويتوسط الشاشة */
+      #printable-assignment-card {
+        width: 100% !important;
+        height: 100vh !important; /* تغطية الشاشة بالكامل */
+        margin: 0 !important;
+        padding: 1.5cm 2cm !important; /* هوامش داخلية أنيقة */
+        border: 2px solid #1e3a8a !important; /* إطار أزرق رسمي */
+        border-radius: 16px !important;
         box-shadow: none !important;
         page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        font-family: 'Cairo', 'Tajawal', sans-serif !important;
-      }
-
-      #printable-assignment-card > div:first-child { flex: 1 1 auto !important; min-height: 0 !important; }
-      #printable-assignment-card .bg-gradient-to-l,
-      #printable-assignment-card .bg-gradient-to-br { background: #f1f5f9 !important; }
-      #printable-assignment-card .bg-blue-900,
-      #printable-assignment-card .bg-gradient-to-br.from-blue-900 { background: #1e3a8a !important; color: #fff !important; }
-
-      #printable-assignment-card > div:first-child > div:first-child {
-        padding: 4mm 6mm 3mm !important;
-      }
-      #printable-assignment-card #card-arabic-name-block { margin-top: 1mm !important; }
-      #printable-assignment-card #card-arabic-name-block > p { font-size: 9pt !important; margin-bottom: 0 !important; }
-      #printable-assignment-card #card-full-name-ar {
-        font-size: 22pt !important;
-        line-height: 1.35 !important;
-        padding: 1mm 0 !important;
-        margin: 0 !important;
-        overflow-wrap: anywhere !important;
-        word-break: normal !important;
-        letter-spacing: 0 !important;
-      }
-      #printable-assignment-card #card-missing-ar-warning { padding: 2mm !important; margin-top: 2mm !important; }
-      #printable-assignment-card #card-birth-info-grid {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 3mm !important;
-        margin-top: 3mm !important;
-        padding-top: 3mm !important;
-      }
-      #printable-assignment-card #card-birth-info-grid > div { gap: 2mm !important; }
-      #printable-assignment-card #card-birth-info-grid > div > div:first-child { width: 8mm !important; height: 8mm !important; }
-      #printable-assignment-card #card-birth-info-grid span:last-child { font-size: 10pt !important; }
-
-      #printable-assignment-card > div:first-child > div:nth-child(2) {
-        padding: 4mm 6mm !important;
-        gap: 3mm !important;
-      }
-      #printable-assignment-card > div:first-child > div:nth-child(2) > div:first-child {
-        font-size: 12pt !important;
-        padding-bottom: 2mm !important;
-      }
-      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(2) {
-        display: grid !important;
-        grid-template-columns: 2fr 1fr !important;
-        gap: 3mm !important;
-      }
-      #printable-assignment-card #card-center,
-      #printable-assignment-card #card-office-number {
-        font-size: 17pt !important;
-        line-height: 1.35 !important;
-        overflow-wrap: anywhere !important;
-        word-break: normal !important;
-      }
-      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(2) > div { padding: 3mm !important; min-height: 22mm !important; }
-      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(3) {
-        display: grid !important;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 3mm !important;
-        padding-top: 2mm !important;
-      }
-      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(3) > div { padding: 2.5mm !important; }
-      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(3) span { font-size: 8pt !important; margin-bottom: 1mm !important; }
-      #printable-assignment-card > div:first-child > div:nth-child(2) > div:nth-child(3) p { font-size: 11pt !important; line-height: 1.35 !important; overflow-wrap: anywhere !important; }
-
-      #printable-assignment-card > div:last-child {
-        flex: 0 0 auto !important;
         display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        gap: 2mm !important;
-        padding: 2.5mm 6mm !important;
-        font-size: 7.5pt !important;
-        line-height: 1.4 !important;
-        background: #f1f5f9 !important;
+        flex-direction: column !important;
+        justify-content: space-between !important; /* توزيع متناسق للمسافات */
       }
-      #printable-assignment-card * {
-        font-family: 'Cairo', 'Tajawal', sans-serif !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-      #printable-assignment-card [dir="ltr"] { direction: ltr !important; unicode-bidi: isolate !important; }
+
+      /* تكبير النصوص قليلاً لتتناسب مع حجم الورقة عند الطباعة */
+      #printable-assignment-card h2 { font-size: 2.75rem !important; }
+      #card-office-number { font-size: 4rem !important; }
+      #card-center { font-size: 2.25rem !important; }
     }
 
     /* شريط تمرير أنيق للجداول */
@@ -417,16 +323,19 @@
 
         <!-- حالة وجود أسماء متطابقة -->
         <div id="state-multiple" class="hidden bg-white border border-blue-200 rounded-2xl shadow-sm overflow-hidden no-print">
-          <div class="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
-              <i data-lucide="users" class="w-5 h-5"></i>
+          <div class="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                <i data-lucide="users" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-extrabold text-blue-950">توجد عدة سجلات مطابقة أو متشابهة لهذا الاسم واللقب</h3>
+                <p class="text-xs text-blue-800">يرجى اختيار السجل الخاص بك بالاعتماد على تاريخ الميلاد والمركز الانتخابي:</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-base font-extrabold text-blue-950">يوجد أكثر من سجل مطابق لهذا الاسم واللقب</h3>
-              <p class="text-xs text-blue-800">يرجى اختيار السجل الخاص بك:</p>
-            </div>
+            <span id="multiple-matches-count" class="px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-extrabold shrink-0"></span>
           </div>
-          <div id="multiple-matches-list" class="divide-y divide-slate-100 p-4 space-y-2"></div>
+          <div id="multiple-matches-list" class="divide-y divide-slate-100 p-4 space-y-2.5"></div>
         </div>
 
         <!-- بطاقة التعيين الرسمية القابلة للطباعة -->
@@ -654,6 +563,8 @@
     let searchLang = 'fr';
     let currentAssignmentData = null;
     let parsedImportBuffer = [];
+    let lastSearchNom = '';
+    let lastSearchPrenom = '';
     let captchaRequired = false, captchaExpectedResult = 0, searchAttempts = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -748,6 +659,9 @@
       ['state-ready','state-incomplete','state-not-found','state-error','state-multiple','state-single-match'].forEach(id=>document.getElementById(id).classList.add('hidden'));
       document.getElementById('state-loading').classList.remove('hidden');
 
+      lastSearchNom = rn;
+      lastSearchPrenom = rp;
+
       try {
         const { data, error } = await supabaseClient.rpc('search_staff_public', { p_nom: rn, p_prenom: rp, p_lang: searchLang });
         if(error) throw error;
@@ -755,15 +669,46 @@
         if(!data || data.status==='NOT_FOUND' || data.status==='INVALID_INPUT') { document.getElementById('state-not-found').classList.remove('hidden'); }
         else if(data.status==='SINGLE_MATCH') { renderAssignmentCard(data.data); }
         else if(data.status==='MULTIPLE_MATCHES') {
-          document.getElementById('multiple-matches-list').innerHTML = data.matches.map(m=>`<div class="p-3 border-b flex justify-between"><div><span class="font-bold">${m.nom} ${m.prenom}</span><div class="text-xs text-slate-500">${m.center} | ${m.task}</div></div><button onclick="selectSpecificMatch('${m.id}','${rn}','${rp}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">اختيار</button></div>`).join('');
+          const matches = data.matches || [];
+          document.getElementById('multiple-matches-count').textContent = `${matches.length} نتائج`;
+          document.getElementById('multiple-matches-list').innerHTML = matches.map(m => {
+            const displayName = (m.nom_ar || m.prenom_ar)
+              ? `${m.nom_ar || ''} ${m.prenom_ar || ''}`.trim()
+              : `${m.nom || ''} ${m.prenom || ''}`.trim();
+            const subLatin = (m.nom_latin || m.prenom_latin)
+              ? `<span class="text-xs font-semibold text-slate-400 mr-2" dir="ltr">(${m.nom_latin || ''} ${m.prenom_latin || ''})</span>`
+              : (m.nom_ar || m.prenom_ar ? `<span class="text-xs font-semibold text-slate-400 mr-2" dir="ltr">(${m.nom || ''} ${m.prenom || ''})</span>` : '');
+            const dobBadge = m.birth_date
+              ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold"><i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-600"></i> تاريخ الميلاد: <span dir="ltr">${m.birth_date}</span></span>`
+              : '';
+            return `
+              <div class="p-4 rounded-xl bg-slate-50/70 hover:bg-blue-50/50 border border-slate-200/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="space-y-1.5">
+                  <div class="flex flex-wrap items-center gap-1">
+                    <span class="font-extrabold text-base text-blue-950">${displayName}</span>
+                    ${subLatin}
+                  </div>
+                  <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600 font-semibold">
+                    ${dobBadge}
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white border border-slate-200"><i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i> ${m.center || '-'}</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800">${m.task || '-'}</span>
+                  </div>
+                </div>
+                <button onclick="selectSpecificMatch('${m.id}')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-sm transition shrink-0 cursor-pointer">
+                  اختيار وعرض البطاقة
+                </button>
+              </div>
+            `;
+          }).join('');
           document.getElementById('state-multiple').classList.remove('hidden');
+          lucide.createIcons();
         }
       } catch(err) { document.getElementById('state-loading').classList.add('hidden'); document.getElementById('state-error').classList.remove('hidden'); }
     }
 
-    async function selectSpecificMatch(id, n, p) {
+    async function selectSpecificMatch(id) {
       document.getElementById('state-multiple').classList.add('hidden'); document.getElementById('state-loading').classList.remove('hidden');
-      try { const { data } = await supabaseClient.rpc('get_staff_card_by_id', { p_id: id, p_nom: n, p_prenom: p, p_lang: searchLang });
+      try { const { data } = await supabaseClient.rpc('get_staff_card_by_id', { p_id: id, p_nom: lastSearchNom, p_prenom: lastSearchPrenom, p_lang: searchLang });
         document.getElementById('state-loading').classList.add('hidden');
         if(data?.status==='SUCCESS') renderAssignmentCard(data.data); else document.getElementById('state-not-found').classList.remove('hidden');
       } catch(e) { document.getElementById('state-error').classList.remove('hidden'); }
@@ -790,39 +735,15 @@
       document.getElementById('state-single-match').classList.remove('hidden');
     }
 
-    async function saveAsNativePDF() {
-      if (!currentAssignmentData) {
-        showToast('لا توجد بطاقة تعيين جاهزة للطباعة.', 'warning');
-        return;
-      }
-
-      const card = document.getElementById('printable-assignment-card');
-      if (!card) {
-        showToast('تعذر العثور على بطاقة التعيين.', 'warning');
-        return;
-      }
-
-      const cleanFilePart = value => String(value || '')
-        .trim()
-        .replace(/[\\/:*?"<>|]+/g, '-')
-        .replace(/\s+/g, '_');
-      const name = cleanFilePart(currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' +
-                   cleanFilePart(currentAssignmentData.prenom_ar || currentAssignmentData.prenom);
-      const originalTitle = document.title;
-      const restoreTitle = () => { document.title = originalTitle; };
-
-      try {
-        /* انتظر تحميل الخط العربي قبل فتح نافذة الطباعة لضمان اتصال الحروف */
-        if (document.fonts && document.fonts.ready) await document.fonts.ready;
-        document.title = `بطاقة_التعيين_${name || 'مؤطر'}`;
-        window.addEventListener('afterprint', restoreTitle, { once: true });
+    function saveAsNativePDF() {
+      showToast('للحفاظ على دقة اللغة العربية، يرجى اختيار "Save as PDF / حفظ بتنسيق PDF" من نافذة الطباعة التي ستظهر الآن.', 'info');
+      setTimeout(() => {
+        const name = currentAssignmentData ? (currentAssignmentData.nom_ar || currentAssignmentData.nom) + '_' + (currentAssignmentData.prenom_ar || currentAssignmentData.prenom) : 'مؤطر';
+        const originalTitle = document.title;
+        document.title = `تعيين_${name.replace(/\s+/g, '_')}`;
         window.print();
-        /* احتياط للمتصفحات التي لا تطلق afterprint */
-        setTimeout(restoreTitle, 10000);
-      } catch (error) {
-        restoreTitle();
-        showToast('تعذر فتح نافذة الطباعة. يرجى المحاولة مرة أخرى.', 'warning');
-      }
+        setTimeout(() => { document.title = originalTitle; }, 1500);
+      }, 2000);
     }
 
     // إدارة لوحة المشرف والإحصائيات
